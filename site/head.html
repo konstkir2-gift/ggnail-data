@@ -168,6 +168,14 @@
     if (p[4] < 3600) return Math.round(p[3] / 60) + '–' + Math.round(p[4] / 60) + NBSP + 'мин';
     return dur1(p[3]) + ' – ' + dur1(p[4]);
   }
+  /* Метрику на сайте запускает виджет YCLIENTS, счётчик лежит в его объекте; обычный ym() оставлен на случай, если счётчик поставят и в Тильде */
+  function goal(name, params) {
+    try {
+      var w = window.yWidget, c = window.__widgetYaCounter || (w && w.counters && w.counters.yaCounter);
+      if (c && typeof c.reachGoal === 'function') c.reachGoal(name, params);
+      else if (typeof window.ym === 'function') window.ym(COUNTER, 'reachGoal', name, params);
+    } catch (x) {}
+  }
   function store(k, v) { try { if (v === undefined) return window.localStorage.getItem(k); window.localStorage.setItem(k, v); } catch (e) { return null; } }
 
   function App(root) {
@@ -270,7 +278,7 @@
       el.setAttribute('aria-expanded', o); el.nextElementSibling.hidden = !o; return;
     }
     if ((el = t.closest('a.gg-book'))) {
-      try { if (typeof window.ym === 'function') window.ym(COUNTER, 'reachGoal', 'gg_book', {section: this.sec, service: el.getAttribute('data-t') || 'общая кнопка', category: this.cat, salon: this.cur().name}); } catch (x) {}
+      goal('gg_book', {section: this.sec, service: el.getAttribute('data-t') || 'общая кнопка', category: this.cat, salon: this.cur().name});
       var w = window.yWidget;
       if (w && typeof w.show === 'function') {
         e.preventDefault();
