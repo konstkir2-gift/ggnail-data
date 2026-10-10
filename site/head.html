@@ -1,0 +1,235 @@
+<!-- G&G: карты в подвале, прайс из YCLIENTS -->
+<script>/* G&G: в подвале стоит пять копий одной Яндекс Карты, по одной на каждую ширину экрана, и грузятся все.
+   Оставляем только ту, что видна на экране, и загружаем её, когда до неё долистали. */
+(function () {
+  if (!window.MutationObserver) return;
+  var RX = /yandex\.[a-z]+\/map-widget\//, frames = [], timer = null;
+  function check() {
+    var w = window.innerWidth || document.documentElement.clientWidth, h = window.innerHeight || 800;
+    for (var i = 0; i < frames.length; i++) {
+      var f = frames[i]; if (f.ggOn) continue;
+      var r = f.getBoundingClientRect();
+      if (r.width > 0 && r.right > 0 && r.left < w && r.top < h + 700 && r.bottom > -700) { f.ggOn = 1; f.src = f.ggSrc; }
+    }
+  }
+  function later(ms) { clearTimeout(timer); timer = setTimeout(check, ms); }
+  function grab(f) {
+    if (f.ggOn || !f.src || !RX.test(f.src)) return;
+    if (!f.ggSrc) frames.push(f);
+    f.ggSrc = f.src; f.src = 'about:blank';
+    later(300);
+  }
+  new MutationObserver(function (ms) {
+    for (var i = 0; i < ms.length; i++) {
+      var m = ms[i];
+      if (m.type === 'attributes') { if (m.target.tagName === 'IFRAME') grab(m.target); continue; }
+      for (var j = 0; j < m.addedNodes.length; j++) {
+        var n = m.addedNodes[j];
+        if (n.nodeType !== 1) continue;
+        if (n.tagName === 'IFRAME') grab(n);
+        else if (n.querySelectorAll) { var fs = n.querySelectorAll('iframe'); for (var k = 0; k < fs.length; k++) grab(fs[k]); }
+      }
+    }
+  }).observe(document.documentElement, {childList: true, subtree: true, attributes: true, attributeFilter: ['src']});
+  window.addEventListener('scroll', function () { if (frames.length) later(150); }, {passive: true});
+  window.addEventListener('resize', function () { if (frames.length) later(400); });
+})();
+</script>
+<style>.gg-price,.gg-price *{box-sizing:border-box}
+.gg-price{max-width:560px;margin:0 auto;padding:0 16px 96px;color:#454545;font:400 15px/1.4 'Manrope',Arial,sans-serif;-webkit-text-size-adjust:100%;text-align:left}
+.gg-wrap{background:#fff5e9}
+.gg-price a{color:inherit !important;text-decoration:none !important}
+.gg-price button{font:inherit;color:inherit;margin:0}
+.gg-hs{display:flex;overflow-x:auto;margin:0 -16px;padding:0 16px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.gg-hs::-webkit-scrollbar{display:none}
+.gg-top{height:60px;display:flex;align-items:center;padding-right:64px;font:400 19px/1 'Dih',Georgia,serif;text-transform:uppercase;letter-spacing:.02em}
+.gg-nav{gap:14px;padding-top:4px;padding-bottom:6px}
+.gg-nav a{flex:none;width:72px;text-align:center;font-size:12px}
+.gg-nav span{display:block;width:72px;height:72px;border-radius:50%;padding:3px;border:2px solid #e3d8c8;margin-bottom:6px;background:#f4ead9}
+.gg-nav img{display:block;width:100%;height:100%;border-radius:50%;object-fit:cover}
+.gg-nav a.gg-on span{border-color:#980003}
+.gg-nav a.gg-on{font-weight:600}
+.gg-price h1,.gg-price h2{font-family:'Dih',Georgia,serif;font-weight:400;text-transform:uppercase;margin:0;color:#454545}
+.gg-price h1{font-size:32px;line-height:1.15;padding:18px 0 6px}
+.gg-price h2{font-size:26px;line-height:1.2;padding:34px 0 6px}
+.gg-price section{scroll-margin-top:72px}
+.gg-lead{color:#767676;font-size:14px;margin:0 0 12px}
+.gg-seg{display:flex;border:1px solid #a3a3a3;border-radius:40px;padding:3px;background:#fff5e9}
+.gg-seg button{flex:1;border:0;background:none;border-radius:40px;padding:9px 4px;font-size:13px;cursor:pointer;white-space:nowrap}
+.gg-seg button.gg-on{background:#434343;color:#fff !important}
+.gg-branch{margin:0 0 10px}
+.gg-price .gg-branch button.gg-on{background:#ced17b;color:#454545 !important}
+.gg-only{font-size:13px;color:#767676;margin:0 0 10px}
+.gg-bar{position:-webkit-sticky;position:sticky;top:0;z-index:5;background:#fff5e9;margin:0 -16px;padding:8px 16px;border-bottom:1px solid #eadfd0}
+.gg-sub{gap:8px;padding-top:16px}
+.gg-sub a{flex:none;padding:8px 16px;border:1px solid #a3a3a3;border-radius:40px;font-size:14px;white-space:nowrap}
+.gg-price ul{list-style:none !important;margin:0 !important;padding:0 !important}
+.gg-price li{border-bottom:1px solid #eadfd0;margin:0 !important;padding:0 !important;list-style:none !important}
+.gg-line{display:flex;align-items:flex-start;gap:12px;width:100%;padding:14px 0;border:0;background:none;text-align:left;cursor:pointer}
+.gg-n{flex:1;min-width:0}
+.gg-n small{display:block;font-size:12px;color:#999;margin-top:2px}
+.gg-p{flex:none;font-weight:600;white-space:nowrap;text-align:right}
+.gg-pl{flex:none;width:22px;height:22px;border:1px solid #a3a3a3;border-radius:50%;position:relative;margin-top:1px}
+.gg-pl:before,.gg-pl:after{content:"";position:absolute;left:50%;top:50%;width:9px;height:1px;background:#454545;transform:translate(-50%,-50%)}
+.gg-pl:after{transform:translate(-50%,-50%) rotate(90deg);transition:transform .15s}
+.gg-line[aria-expanded=true] .gg-pl:after{transform:translate(-50%,-50%) rotate(0)}
+.gg-no .gg-n,.gg-no .gg-p{color:#b0a89c;font-weight:400}
+.gg-more{padding:0 0 16px}
+.gg-more p{font-size:13px;color:#767676;margin:0 0 12px}
+.gg-book{display:block;text-align:center;border:1px solid #980003;color:#980003 !important;border-radius:40px;padding:11px;font-weight:600;font-size:14px}
+.gg-var{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid #f0e6d7;font-size:14px}
+.gg-var:first-of-type{border-top:0}
+.gg-var span:first-child{flex:1}
+.gg-var b{font-weight:600;white-space:nowrap}
+.gg-var small{display:block;font-size:12px;color:#999}
+.gg-var .gg-book{flex:none;padding:7px 14px;font-size:13px}
+.gg-cta{position:fixed;left:0;right:0;bottom:0;z-index:50;padding:10px 16px calc(10px + env(safe-area-inset-bottom));background:linear-gradient(rgba(255,245,233,0),#fff5e9 38%)}
+.gg-cta a{display:block;max-width:528px;margin:0 auto;text-align:center;background:#980003;color:#fff !important;border-radius:40px;padding:16px;font-size:16px;font-weight:600}
+.gg-upd{font-size:12px;color:#999;margin:22px 0 0}
+.gg-has-price .yButton,.gg-has-price [data-superbutton]{display:none !important}
+</style>
+<script>/* Прайс G&G: цены приходят из YCLIENTS. Блок рисуется из данных, вшитых в страницу, и молча обновляется свежими. */
+(function () {
+  var CFG = window.GG_CFG || {};
+  var DATA_URL = CFG.dataUrl || 'https://konstkir2-gift.github.io/ggnail-data/site.json';
+  var COUNTER = CFG.counter || 87156332;
+  var LABELS = {
+    nails: {base: 'Мастер', expert: 'Эксперт', top: 'Топ-мастер', instructor: 'Инструктор'},
+    hair: {base: 'Стилист', top: 'Топ-стилист'},
+    def: {base: 'Мастер', expert: 'Эксперт', top: 'Топ-мастер', instructor: 'Инструктор'}
+  };
+  var NBSP = ' ';
+
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+  function num(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, NBSP); }
+  function price(p) {
+    if (!p) return 'нет';
+    if (!p[1] && !p[2]) return 'бесплатно';
+    if (p[1] === p[2]) return num(p[1]) + NBSP + '₽';
+    if (!p[1]) return 'до ' + num(p[2]) + NBSP + '₽';
+    return num(p[1]) + '–' + num(p[2]) + NBSP + '₽';
+  }
+  function dur1(s) { var m = Math.round(s / 60), h = Math.floor(m / 60); m = m % 60; return (h ? h + NBSP + 'ч' : '') + (h && m ? ' ' : '') + (m ? m + NBSP + 'мин' : ''); }
+  function dur(p) {
+    if (!p || !p[3]) return '';
+    if (p[3] === p[4]) return dur1(p[3]);
+    if (p[4] < 3600) return Math.round(p[3] / 60) + '–' + Math.round(p[4] / 60) + NBSP + 'мин';
+    return dur1(p[3]) + ' – ' + dur1(p[4]);
+  }
+  function store(k, v) { try { if (v === undefined) return window.localStorage.getItem(k); window.localStorage.setItem(k, v); } catch (e) { return null; } }
+
+  function App(root) {
+    this.root = root;
+    this.sec = root.getAttribute('data-section');
+    this.box = root.querySelector('.gg-app');
+    this.data = JSON.parse(root.querySelector('script.gg-data').textContent);
+    this.open = {};
+    var saved = store('gg_branch');
+    this.branch = this.pickBranch(saved ? +saved : null);
+    this.cat = null;
+    var self = this;
+    root.addEventListener('click', function (e) { self.click(e); });
+    this.render();
+    this.refresh();
+  }
+  App.prototype.branches = function () { var s = this.sec; return this.data.branches.filter(function (b) { return b.sec && b.sec[s]; }); };
+  App.prototype.pickBranch = function (id) { var bs = this.branches(); for (var i = 0; i < bs.length; i++) if (bs[i].id === id) return id; return bs.length ? bs[0].id : null; };
+  App.prototype.cur = function () { var bs = this.branches(); for (var i = 0; i < bs.length; i++) if (bs[i].id === this.branch) return bs[i]; return bs[0]; };
+  App.prototype.bookUrl = function (id) { return this.data.form + '/company/' + this.branch + '/personal/menu' + (id ? '?o=s' + id : ''); };
+  App.prototype.render = function () {
+    var b = this.cur(); if (!b) { return; }
+    var sec = b.sec[this.sec], cats = sec.cats, lab = LABELS[this.sec] || LABELS.def, self = this, h = '';
+    if (cats.indexOf(this.cat) < 0) this.cat = cats[0];
+    var bs = this.branches();
+    if (bs.length > 1) {
+      h += '<div class="gg-seg gg-branch">';
+      bs.forEach(function (x) { h += '<button type="button" data-b="' + x.id + '"' + (x.id === b.id ? ' class="gg-on"' : '') + '>' + esc(x.name) + '</button>'; });
+      h += '</div>';
+    } else { h += '<p class="gg-only">Эти услуги есть в салоне на ' + esc(b.name.replace(/^Пражская/, 'Пражской').replace(/^Европейский/, 'Европейском')) + '</p>'; }
+    if (cats.length > 1) {
+      h += '<div class="gg-bar"><div class="gg-seg">';
+      cats.forEach(function (c) { h += '<button type="button" data-c="' + c + '"' + (c === self.cat ? ' class="gg-on"' : '') + '>' + (lab[c] || LABELS.def[c]) + '</button>'; });
+      h += '</div></div>';
+    }
+    if (sec.subs.length > 1) {
+      h += '<nav class="gg-hs gg-sub">';
+      sec.subs.forEach(function (s, i) { h += '<a href="#gg-' + self.sec + '-' + i + '">' + esc(s.t) + '</a>'; });
+      h += '</nav>';
+    }
+    sec.subs.forEach(function (s, i) {
+      h += '<section id="gg-' + self.sec + '-' + i + '">' + (sec.subs.length > 1 ? '<h2>' + esc(s.t) + '</h2>' : '') + '<ul>';
+      s.rows.forEach(function (r, j) { h += self.row(r, i + '-' + j); });
+      h += '</ul></section>';
+    });
+    if (this.data.built) h += '<p class="gg-upd">Цены из системы записи, обновлены ' + esc(this.data.built.slice(8, 10) + '.' + this.data.built.slice(5, 7) + '.' + this.data.built.slice(0, 4)) + '</p>';
+    h += '<div class="gg-cta"><a class="gg-book" data-any="1" href="' + this.bookUrl() + '">Записаться онлайн</a></div>';
+    this.box.innerHTML = h;
+  };
+  App.prototype.row = function (r, key) {
+    var c = this.cat, open = !!this.open[key], h, self = this;
+    if (r.vars) {
+      var have = r.vars.filter(function (v) { return v.p[c]; });
+      var mn = null; have.forEach(function (v) { if (mn === null || v.p[c][1] < mn) mn = v.p[c][1]; });
+      h = '<li class="gg-row' + (have.length ? '' : ' gg-no') + '"><button type="button" class="gg-line" data-k="' + key + '" aria-expanded="' + open + '"><span class="gg-n">' + esc(r.t) +
+        '<small>' + r.vars.length + ' ' + (r.vars.length < 5 ? 'варианта' : 'вариантов') + ' по длине волос</small></span><span class="gg-p">' + (have.length ? 'от ' + num(mn) + NBSP + '₽' : 'нет') + '</span><span class="gg-pl"></span></button>';
+      h += '<div class="gg-more"' + (open ? '' : ' hidden') + '>' + (r.n ? '<p>' + esc(r.n) + '</p>' : '');
+      r.vars.forEach(function (v) {
+        var p = v.p[c];
+        h += '<div class="gg-var"><span>' + esc(v.l.charAt(0).toUpperCase() + v.l.slice(1)) + (p && dur(p) ? '<small>' + dur(p) + '</small>' : '') + '</span><b>' + price(p) + '</b>' +
+          (p ? '<a class="gg-book" data-t="' + esc(r.t + ', ' + v.l) + '" href="' + self.bookUrl(p[0]) + '">Записаться</a>' : '') + '</div>';
+      });
+      return h + '</div></li>';
+    }
+    var p = r.p[c], d = dur(p);
+    h = '<li class="gg-row' + (p ? '' : ' gg-no') + '"><button type="button" class="gg-line" data-k="' + key + '" aria-expanded="' + open + '"><span class="gg-n">' + esc(r.t) + (d ? '<small>' + d + '</small>' : '') +
+      '</span><span class="gg-p">' + price(p) + '</span><span class="gg-pl"></span></button><div class="gg-more"' + (open ? '' : ' hidden') + '>' + (r.n ? '<p>' + esc(r.n) + '</p>' : '') +
+      (p ? '<a class="gg-book" data-t="' + esc(r.t) + '" href="' + this.bookUrl(p[0]) + '">Записаться на эту услугу</a>' : '<p>У мастеров этой категории такой услуги нет. Выберите другую категорию.</p>') + '</div></li>';
+    return h;
+  };
+  App.prototype.click = function (e) {
+    var t = e.target, el;
+    if ((el = t.closest('[data-b]'))) { this.branch = +el.getAttribute('data-b'); store('gg_branch', String(this.branch)); this.open = {}; this.render(); return; }
+    if ((el = t.closest('[data-c]'))) { this.cat = el.getAttribute('data-c'); this.render(); return; }
+    if ((el = t.closest('.gg-line'))) {
+      var k = el.getAttribute('data-k'), o = !this.open[k]; this.open[k] = o;
+      el.setAttribute('aria-expanded', o); el.nextElementSibling.hidden = !o; return;
+    }
+    if ((el = t.closest('a.gg-book'))) {
+      try { if (typeof window.ym === 'function') window.ym(COUNTER, 'reachGoal', 'gg_book', {section: this.sec, service: el.getAttribute('data-t') || 'общая кнопка', category: this.cat, salon: this.cur().name}); } catch (x) {}
+      var w = window.yWidget;
+      if (w && typeof w.show === 'function') {
+        e.preventDefault();
+        var url = el.href;
+        try { var q = w.buildSearchQuery(); if (q) url += (url.indexOf('?') > -1 ? '&' : '?') + q; } catch (x) {}
+        w.show(url);
+      }
+    }
+  };
+  App.prototype.refresh = function () {
+    var self = this, done = false;
+    function use(d) {
+      if (!d || d.v !== 2 || !d.branches || d.hash === self.data.hash) return;
+      self.data = d; self.branch = self.pickBranch(self.branch); self.render();
+    }
+    try {
+      var c = window.sessionStorage.getItem('gg_data');
+      if (c) { c = JSON.parse(c); if (Date.now() - c.at < 600000) { use(c.d); return; } }
+    } catch (e) {}
+    if (!window.fetch) return;
+    var ctl = window.AbortController ? new AbortController() : null;
+    setTimeout(function () { if (!done && ctl) ctl.abort(); }, 5000);
+    fetch(DATA_URL, ctl ? {signal: ctl.signal} : {}).then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
+      done = true; if (!d) return;
+      try { window.sessionStorage.setItem('gg_data', JSON.stringify({at: Date.now(), d: d})); } catch (e) {}
+      use(d);
+    }).catch(function () { done = true; });
+  };
+
+  function boot() {
+    var n = document.querySelectorAll('.gg-price[data-section]');
+    if (n.length && document.documentElement.className.indexOf('gg-has-price') < 0) document.documentElement.className += ' gg-has-price';
+    for (var i = 0; i < n.length; i++) { if (!n[i].ggApp) n[i].ggApp = new App(n[i]); }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
+})();
+</script>
