@@ -130,6 +130,21 @@
 .gg-rel{padding:12px 0 0}
 .gg-rel a{display:inline-block;margin:0 6px 8px 0;padding:7px 14px;border:1px solid #a3a3a3;border-radius:40px;font-size:13px;line-height:1.3}
 .gg-rel a.gg-on{background:#ced17b;border-color:#ced17b}
+.gg-faq{border-top:1px solid #e3ddd2}
+.gg-faq:last-of-type{border-bottom:1px solid #e3ddd2}
+.gg-faq summary{cursor:pointer;list-style:none;position:relative;padding:14px 36px 14px 0;font-weight:600;line-height:1.35}
+.gg-faq summary::-webkit-details-marker{display:none}
+.gg-faq summary:after{content:"";position:absolute;right:8px;top:50%;width:8px;height:8px;margin-top:-7px;border-right:2px solid #980003;border-bottom:2px solid #980003;transform:rotate(45deg);transition:transform .2s}
+.gg-faq[open] summary:after{transform:rotate(-135deg);margin-top:-2px}
+.gg-faq .gg-a{padding:0 0 16px;line-height:1.55}
+.gg-rev{padding:26px 0 0}
+.gg-price .gg-rev h2{font-size:22px;padding:18px 0 12px}
+.gg-rev .gg-seg{margin:0 0 12px}
+.gg-rev-box{height:560px;border:1px solid #e3ddd2;border-radius:12px;overflow:hidden;background:#fff}
+.gg-rev-box iframe{width:100%;height:100%;border:0;display:block}
+.gg-price .gg-rev-more{font-size:13px;margin:10px 0 0}
+.gg-price .gg-rev-more a{color:#767676 !important;text-decoration:underline !important}
+body:not(:has(#rec1603685531)) li:has(>a[href$="#hot"]),body:not(:has(#rec1603685531)) a[href$="#hot"]{display:none !important}
 @media (max-width:940px){
 .gg-crumbs{padding-right:64px}
 .gg-price .gg-stuck{padding-right:84px}
@@ -472,6 +487,20 @@
       w.show(url);
     } else { a.href = withSrc(a.href); }
   });
+  /* блок отзывов: кнопки салона меняют организацию в виджете Яндекс Карт */
+  document.addEventListener('click', function (e) {
+    var b = e.target && e.target.closest ? e.target.closest('button[data-org]') : null; if (!b) return;
+    var box = b.closest('.gg-rev'), f = box && box.querySelector('iframe'), org = b.getAttribute('data-org'); if (!f) return;
+    f.src = 'https://yandex.ru/maps-reviews-widget/' + org + '?comments';
+    [].forEach.call(box.querySelectorAll('button[data-org]'), function (x) { x.className = x === b ? 'gg-on' : ''; });
+    var a = box.querySelector('.gg-rev-more a'); if (a) a.href = 'https://yandex.ru/maps/org/g_g/' + org + '/reviews/';
+  });
+  /* блок акции в подвале (rec1603685531) скрыт: прячем и пункт меню «Акции». Вернётся сам, когда блок снова покажут.
+     В новых браузерах это делает правило :has в gg.css, здесь запасной путь для старых. */
+  function promoLinks() {
+    if (document.getElementById('rec1603685531')) return;
+    [].forEach.call(document.querySelectorAll('a[href$="#hot"]'), function (a) { var li = a.closest ? a.closest('li') : null; (li || a).style.display = 'none'; });
+  }
   visitSrc();
   window.addEventListener('load', function () {
     patchWidget(); setTimeout(patchWidget, 3000);
@@ -479,6 +508,7 @@
   });
 
   function boot() {
+    promoLinks();
     var n = document.querySelectorAll('.gg-price[data-section]');
     if (n.length && document.documentElement.className.indexOf('gg-has-price') < 0) document.documentElement.className += ' gg-has-price';
     for (var i = 0; i < n.length; i++) { if (!n[i].ggApp) n[i].ggApp = new App(n[i]); }
