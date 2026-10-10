@@ -244,6 +244,9 @@
     this.open = {};
     /* страница одной услуги: показываем только её строки, сразу раскрытыми */
     this.only = (root.getAttribute('data-only') || '').split('|').map(norm).filter(Boolean);
+    /* номера услуг в YCLIENTS: по ним страница находит свою услугу, даже если её переименовали */
+    var ids = this.ids = {};
+    (root.getAttribute('data-ids') || '').split(',').forEach(function (i) { if (i) ids[i] = 1; });
     this.onlySub = norm(root.getAttribute('data-sub'));
     this.hl = norm(root.getAttribute('data-var'));
     this.links = {};
@@ -271,9 +274,14 @@
     var sec = b && b.sec && b.sec[this.sec]; if (!sec) return null;
     if (!this.only.length) return sec;
     var self = this, subs = [];
+    function byId(r) {
+      var c, hit = false;
+      (r.vars || [r]).forEach(function (v) { for (c in v.p) if (v.p.hasOwnProperty(c) && self.ids[v.p[c][0]]) hit = true; });
+      return hit;
+    }
     sec.subs.forEach(function (x) {
-      if (self.onlySub && norm(x.t) !== self.onlySub) return;
-      var rows = x.rows.filter(function (r) { return self.only.indexOf(norm(r.t)) > -1; });
+      var subOk = !self.onlySub || norm(x.t) === self.onlySub;
+      var rows = x.rows.filter(function (r) { return byId(r) || (subOk && self.only.indexOf(norm(r.t)) > -1); });
       if (rows.length) subs.push({t: x.t, rows: rows});
     });
     if (!subs.length) return null;
@@ -343,7 +351,10 @@
     return d ? 'Цены из системы записи, сверены ' + esc(d.slice(8, 10) + '.' + d.slice(5, 7) + '.' + d.slice(0, 4)) : '';
   };
   App.prototype.about = function (r, sub) {
-    var l = this.links[sub + '|' + r.t] || this.links[r.t]; if (!l) return '';
+    var l = this.links[sub + '|' + r.t] || this.links[r.t], L = this.links, c;
+    /* услугу могли переименовать в YCLIENTS: тогда ищем ссылку по её номеру */
+    if (!l) (r.vars || [r]).forEach(function (v) { for (c in v.p) if (!l && v.p.hasOwnProperty(c)) l = L['#' + v.p[c][0]]; });
+    if (!l) return '';
     if (typeof l === 'string') return '<a class="gg-about" href="' + esc(l) + '">Подробнее об услуге</a>';
     return '<p class="gg-zones">' + l.map(function (x) { return '<a href="' + esc(x[1]) + '">' + esc(x[0]) + '</a>'; }).join(', ') + '</p>';
   };
