@@ -92,6 +92,7 @@
 (function () {
   var CFG = window.GG_CFG || {};
   var DATA_URL = CFG.dataUrl || 'https://konstkir2-gift.github.io/ggnail-data/site.json';
+  var DATA_URL2 = CFG.dataUrl2 === undefined ? 'https://cdn.jsdelivr.net/gh/konstkir2-gift/ggnail-data@main/site.json' : CFG.dataUrl2;
   var COUNTER = CFG.counter || 87156332;
   var LABELS = {
     nails: {base: 'Мастер', expert: 'Эксперт', top: 'Топ-мастер', instructor: 'Инструктор'},
@@ -161,9 +162,13 @@
       s.rows.forEach(function (r, j) { h += self.row(r, i + '-' + j); });
       h += '</ul></section>';
     });
-    if (this.data.built) h += '<p class="gg-upd">Цены из системы записи, обновлены ' + esc(this.data.built.slice(8, 10) + '.' + this.data.built.slice(5, 7) + '.' + this.data.built.slice(0, 4)) + '</p>';
+    h += '<p class="gg-upd">' + this.stamp() + '</p>';
     h += '<div class="gg-cta"><a class="gg-book" data-any="1" href="' + this.bookUrl() + '">Записаться онлайн</a></div>';
     this.box.innerHTML = h;
+  };
+  App.prototype.stamp = function () {
+    var d = this.data.checked || this.data.built || '';
+    return d ? 'Цены из системы записи, сверены ' + esc(d.slice(8, 10) + '.' + d.slice(5, 7) + '.' + d.slice(0, 4)) : '';
   };
   App.prototype.row = function (r, key) {
     var c = this.cat, open = !!this.open[key], h, self = this;
@@ -206,9 +211,15 @@
     }
   };
   App.prototype.refresh = function () {
-    var self = this, done = false;
+    var self = this;
     function use(d) {
-      if (!d || d.v !== 2 || !d.branches || d.hash === self.data.hash) return;
+      if (!d || d.v !== 2 || !d.branches) return;
+      if (d.built && self.data.built && d.built < self.data.built) return;
+      if (d.hash === self.data.hash) {
+        /* цены те же, обновилась только дата сверки */
+        if (d.checked && d.checked > (self.data.checked || '')) { self.data.checked = d.checked; var u = self.box.querySelector('.gg-upd'); if (u) u.innerHTML = self.stamp(); }
+        return;
+      }
       self.data = d; self.branch = self.pickBranch(self.branch); self.render();
     }
     try {
@@ -216,13 +227,20 @@
       if (c) { c = JSON.parse(c); if (Date.now() - c.at < 600000) { use(c.d); return; } }
     } catch (e) {}
     if (!window.fetch) return;
-    var ctl = window.AbortController ? new AbortController() : null;
-    setTimeout(function () { if (!done && ctl) ctl.abort(); }, 5000);
-    fetch(DATA_URL, ctl ? {signal: ctl.signal} : {}).then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
-      done = true; if (!d) return;
-      try { window.sessionStorage.setItem('gg_data', JSON.stringify({at: Date.now(), d: d})); } catch (e) {}
-      use(d);
-    }).catch(function () { done = true; });
+    /* запасной адрес отдаёт ту же копию через другую сеть; метка дня не даёт браузеру держать её неделю */
+    var urls = [DATA_URL];
+    if (DATA_URL2) urls.push(DATA_URL2 + (DATA_URL2.indexOf('?') < 0 ? '?d=' : '&d=') + new Date().toISOString().slice(0, 10));
+    (function next(i) {
+      if (i >= urls.length) return;
+      var ctl = window.AbortController ? new AbortController() : null;
+      var t = setTimeout(function () { if (ctl) ctl.abort(); }, 5000);
+      fetch(urls[i], ctl ? {signal: ctl.signal} : {}).then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function (d) {
+        clearTimeout(t);
+        if (!d || d.v !== 2 || !d.branches) throw 0;
+        try { window.sessionStorage.setItem('gg_data', JSON.stringify({at: Date.now(), d: d})); } catch (e) {}
+        use(d);
+      }).catch(function () { clearTimeout(t); next(i + 1); });
+    })(0);
   };
 
   function boot() {
