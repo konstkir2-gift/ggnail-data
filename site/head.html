@@ -1,9 +1,13 @@
-<!-- G&G: карты в подвале, прайс из YCLIENTS -->
-<script>/* G&G: в подвале стоит пять копий одной Яндекс Карты, по одной на каждую ширину экрана, и грузятся все.
-   Оставляем только ту, что видна на экране, и загружаем её, когда до неё долистали. */
+<!-- G&G: карты в подвале, картинки, прайс из YCLIENTS -->
+<script>/* G&G: ускорение страниц.
+   1) Карты. В подвале стоит пять копий одной Яндекс Карты, по одной на каждую ширину экрана, и грузятся все.
+      Оставляем только ту, что видна на экране, и загружаем её, когда до неё долистали.
+   2) Картинки. Часть фонов в Zero-блоках Тильда отдаёт сразу и в исходном размере (по мегабайту на фото).
+      Переводим их на её же ленивую загрузку: картинка грузится, когда до неё долистали, и в формате WebP. */
 (function () {
   if (!window.MutationObserver) return;
-  var RX = /yandex\.[a-z]+\/map-widget\//, frames = [], timer = null;
+  var MAP = /yandex\.[a-z]+\/map-widget\//, frames = [], timer = null;
+  var BG = /url\(\s*['"]?(https:\/\/static\.tildacdn\.com\/(tild[0-9a-f-]+)\/([^'")]+\.(?:png|jpe?g)))['"]?\s*\)/i, bgs = [], lazyOn = null;
   function check() {
     var w = window.innerWidth || document.documentElement.clientWidth, h = window.innerHeight || 800;
     for (var i = 0; i < frames.length; i++) {
@@ -14,25 +18,44 @@
   }
   function later(ms) { clearTimeout(timer); timer = setTimeout(check, ms); }
   function grab(f) {
-    if (f.ggOn || !f.src || !RX.test(f.src)) return;
+    if (f.ggOn || !f.src || !MAP.test(f.src)) return;
     if (!f.ggSrc) frames.push(f);
     f.ggSrc = f.src; f.src = 'about:blank';
     later(300);
+  }
+  function lazyBg(el) {
+    if (el.ggBg || el.getAttribute('data-original')) return;
+    if (lazyOn === null) { var all = document.getElementById('allrecords'); lazyOn = !!all && all.getAttribute('data-tilda-lazy') === 'yes'; }
+    if (!lazyOn) return;
+    var m = BG.exec(el.getAttribute('style') || ''); if (!m) return;
+    el.ggBg = m[1]; bgs.push(el);
+    el.setAttribute('data-original', m[1]);
+    el.setAttribute('data-lazy-rule', 'skip'); /* у этих фонов свой кадр и масштаб, поэтому размер не трогаем, меняется только формат */
+    el.style.backgroundImage = "url('https://thb.tildacdn.com/" + m[2] + '/-/resize/20x/' + m[3] + "')";
+  }
+  function scan(n) {
+    if (n.tagName === 'IFRAME') { grab(n); return; }
+    if (n.className && typeof n.className === 'string' && n.className.indexOf('t-bgimg') > -1) lazyBg(n);
+    if (!n.querySelectorAll) return;
+    var fs = n.querySelectorAll('iframe'), k; for (k = 0; k < fs.length; k++) grab(fs[k]);
+    var bs = n.querySelectorAll('.t-bgimg'); for (k = 0; k < bs.length; k++) lazyBg(bs[k]);
   }
   new MutationObserver(function (ms) {
     for (var i = 0; i < ms.length; i++) {
       var m = ms[i];
       if (m.type === 'attributes') { if (m.target.tagName === 'IFRAME') grab(m.target); continue; }
-      for (var j = 0; j < m.addedNodes.length; j++) {
-        var n = m.addedNodes[j];
-        if (n.nodeType !== 1) continue;
-        if (n.tagName === 'IFRAME') grab(n);
-        else if (n.querySelectorAll) { var fs = n.querySelectorAll('iframe'); for (var k = 0; k < fs.length; k++) grab(fs[k]); }
-      }
+      for (var j = 0; j < m.addedNodes.length; j++) { if (m.addedNodes[j].nodeType === 1) scan(m.addedNodes[j]); }
     }
   }).observe(document.documentElement, {childList: true, subtree: true, attributes: true, attributeFilter: ['src']});
   window.addEventListener('scroll', function () { if (frames.length) later(150); }, {passive: true});
   window.addEventListener('resize', function () { if (frames.length) later(400); });
+  /* страховка: если ленивая загрузка Тильды не запустилась, возвращаем картинки как были */
+  window.addEventListener('load', function () {
+    setTimeout(function () {
+      if (typeof window.t_lazyload_update === 'function') return;
+      for (var i = 0; i < bgs.length; i++) { bgs[i].removeAttribute('data-original'); bgs[i].removeAttribute('data-lazy-rule'); bgs[i].style.backgroundImage = "url('" + bgs[i].ggBg + "')"; }
+    }, 4000);
+  });
 })();
 </script>
 <style>.gg-price,.gg-price *{box-sizing:border-box}
@@ -55,14 +78,15 @@
 .gg-price section{scroll-margin-top:72px}
 .gg-lead{color:#767676;font-size:14px;margin:0 0 12px}
 .gg-seg{display:flex;border:1px solid #a3a3a3;border-radius:40px;padding:3px;background:#fff5e9}
-.gg-seg button{flex:1;border:0;background:none;border-radius:40px;padding:9px 4px;font-size:13px;cursor:pointer;white-space:nowrap}
+.gg-seg button{flex:1;border:0;background:none;border-radius:40px;padding:9px 4px;font-size:13px;line-height:18px;cursor:pointer;white-space:nowrap}
+.gg-seg .gg-s{display:none}
 .gg-seg button.gg-on{background:#434343;color:#fff !important}
 .gg-branch{margin:0 0 10px}
 .gg-price .gg-branch button.gg-on{background:#ced17b;color:#454545 !important}
 .gg-only{font-size:13px;color:#767676;margin:0 0 10px}
 .gg-bar{position:-webkit-sticky;position:sticky;top:0;z-index:5;background:#fff5e9;margin:0 -16px;padding:8px 16px;border-bottom:1px solid #eadfd0}
 .gg-sub{gap:8px;padding-top:16px}
-.gg-sub a{flex:none;padding:8px 16px;border:1px solid #a3a3a3;border-radius:40px;font-size:14px;white-space:nowrap}
+.gg-sub button{flex:none;padding:8px 16px;border:1px solid #a3a3a3;border-radius:40px;font-size:14px;white-space:nowrap;background:none;cursor:pointer}
 .gg-price ul{list-style:none !important;margin:0 !important;padding:0 !important}
 .gg-price li{border-bottom:1px solid #eadfd0;margin:0 !important;padding:0 !important;list-style:none !important}
 .gg-line{display:flex;align-items:flex-start;gap:12px;width:100%;padding:14px 0;border:0;background:none;text-align:left;cursor:pointer}
@@ -75,7 +99,7 @@
 .gg-line[aria-expanded=true] .gg-pl:after{transform:translate(-50%,-50%) rotate(0)}
 .gg-no .gg-n,.gg-no .gg-p{color:#b0a89c;font-weight:400}
 .gg-more{padding:0 0 16px}
-.gg-more p{font-size:13px;color:#767676;margin:0 0 12px}
+.gg-more p{font-size:13px;color:#767676;margin:0 0 12px;white-space:pre-line}
 .gg-book{display:block;text-align:center;border:1px solid #980003;color:#980003 !important;border-radius:40px;padding:11px;font-weight:600;font-size:14px}
 .gg-var{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid #f0e6d7;font-size:14px}
 .gg-var:first-of-type{border-top:0}
@@ -87,6 +111,31 @@
 .gg-cta a{display:block;max-width:528px;margin:0 auto;text-align:center;background:#980003;color:#fff !important;border-radius:40px;padding:16px;font-size:16px;font-weight:600}
 .gg-upd{font-size:12px;color:#999;margin:22px 0 0}
 .gg-has-price .yButton,.gg-has-price [data-superbutton]{display:none !important}
+@media (max-width:940px){
+.gg-price .gg-stuck{padding-right:84px}
+.gg-stuck .gg-seg{overflow-x:auto;scrollbar-width:none}
+.gg-stuck .gg-seg::-webkit-scrollbar{display:none}
+.gg-stuck .gg-seg button{flex:1 1 auto;font-size:12px;padding:9px 6px}
+.gg-stuck .gg-l{display:none}
+.gg-stuck .gg-s{display:inline}
+}
+@media (min-width:700px){
+.gg-price{max-width:752px;font-size:16px}
+.gg-nav{gap:0;justify-content:space-between;overflow:visible;padding-bottom:10px}
+.gg-nav a{width:84px;font-size:13px}
+.gg-nav span{width:84px;height:84px}
+.gg-price h1{font-size:44px;padding-top:26px}
+.gg-price h2{font-size:32px;padding-top:44px}
+.gg-lead{font-size:15px;margin-bottom:16px}
+.gg-seg button{font-size:14px;padding:11px 6px}
+.gg-sub{flex-wrap:wrap;overflow:visible}
+.gg-line{padding:16px 0}
+.gg-more .gg-book{max-width:320px}
+.gg-cta a{max-width:360px}
+}
+@media (min-width:700px) and (max-width:940px){
+.gg-stuck .gg-seg button{font-size:13px;padding:11px 8px}
+}
 </style>
 <script>/* Прайс G&G: цены приходят из YCLIENTS. Блок рисуется из данных, вшитых в страницу, и молча обновляется свежими. */
 (function () {
@@ -99,6 +148,8 @@
     hair: {base: 'Стилист', top: 'Топ-стилист'},
     def: {base: 'Мастер', expert: 'Эксперт', top: 'Топ-мастер', instructor: 'Инструктор'}
   };
+  /* короткие подписи: когда переключатель прилип к верху экрана, справа его перекрывает кнопка меню сайта */
+  var SHORT = {top: 'Топ'};
   var NBSP = ' ';
 
   function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
@@ -130,6 +181,12 @@
     this.cat = null;
     var self = this;
     root.addEventListener('click', function (e) { self.click(e); });
+    this.stuck = false;
+    var wait = false;
+    window.addEventListener('scroll', function () {
+      if (wait) return; wait = true;
+      (window.requestAnimationFrame || setTimeout)(function () { wait = false; self.stick(); });
+    }, {passive: true});
     this.render();
     this.refresh();
   }
@@ -148,13 +205,16 @@
       h += '</div>';
     } else { h += '<p class="gg-only">Эти услуги есть в салоне на ' + esc(b.name.replace(/^Пражская/, 'Пражской').replace(/^Европейский/, 'Европейском')) + '</p>'; }
     if (cats.length > 1) {
-      h += '<div class="gg-bar"><div class="gg-seg">';
-      cats.forEach(function (c) { h += '<button type="button" data-c="' + c + '"' + (c === self.cat ? ' class="gg-on"' : '') + '>' + (lab[c] || LABELS.def[c]) + '</button>'; });
+      h += '<div class="gg-bar' + (this.stuck ? ' gg-stuck' : '') + '"><div class="gg-seg">';
+      cats.forEach(function (c) {
+        var l = lab[c] || LABELS.def[c], sh = cats.length > 3 && SHORT[c];
+        h += '<button type="button" data-c="' + c + '"' + (c === self.cat ? ' class="gg-on"' : '') + '>' + (sh ? '<span class="gg-l">' + l + '</span><span class="gg-s">' + sh + '</span>' : l) + '</button>';
+      });
       h += '</div></div>';
     }
     if (sec.subs.length > 1) {
       h += '<nav class="gg-hs gg-sub">';
-      sec.subs.forEach(function (s, i) { h += '<a href="#gg-' + self.sec + '-' + i + '">' + esc(s.t) + '</a>'; });
+      sec.subs.forEach(function (s, i) { h += '<button type="button" data-s="gg-' + self.sec + '-' + i + '">' + esc(s.t) + '</button>'; });
       h += '</nav>';
     }
     sec.subs.forEach(function (s, i) {
@@ -165,6 +225,11 @@
     h += '<p class="gg-upd">' + this.stamp() + '</p>';
     h += '<div class="gg-cta"><a class="gg-book" data-any="1" href="' + this.bookUrl() + '">Записаться онлайн</a></div>';
     this.box.innerHTML = h;
+  };
+  App.prototype.stick = function () {
+    var b = this.box.querySelector('.gg-bar'); if (!b) return;
+    var st = b.getBoundingClientRect().top <= 1;
+    if (st !== this.stuck) { this.stuck = st; b.className = 'gg-bar' + (st ? ' gg-stuck' : ''); }
   };
   App.prototype.stamp = function () {
     var d = this.data.checked || this.data.built || '';
@@ -185,7 +250,7 @@
       });
       return h + '</div></li>';
     }
-    var p = r.p[c], d = dur(p);
+    var p = r.p[c], d = /\d\s*мин/i.test(r.t) ? '' : dur(p);
     h = '<li class="gg-row' + (p ? '' : ' gg-no') + '"><button type="button" class="gg-line" data-k="' + key + '" aria-expanded="' + open + '"><span class="gg-n">' + esc(r.t) + (d ? '<small>' + d + '</small>' : '') +
       '</span><span class="gg-p">' + price(p) + '</span><span class="gg-pl"></span></button><div class="gg-more"' + (open ? '' : ' hidden') + '>' + (r.n ? '<p>' + esc(r.n) + '</p>' : '') +
       (p ? '<a class="gg-book" data-t="' + esc(r.t) + '" href="' + this.bookUrl(p[0]) + '">Записаться на эту услугу</a>' : '<p>У мастеров этой категории такой услуги нет. Выберите другую категорию.</p>') + '</div></li>';
@@ -195,6 +260,11 @@
     var t = e.target, el;
     if ((el = t.closest('[data-b]'))) { this.branch = +el.getAttribute('data-b'); store('gg_branch', String(this.branch)); this.open = {}; this.render(); return; }
     if ((el = t.closest('[data-c]'))) { this.cat = el.getAttribute('data-c'); this.render(); return; }
+    if ((el = t.closest('[data-s]'))) {
+      var sc = document.getElementById(el.getAttribute('data-s'));
+      if (sc) { try { sc.scrollIntoView({behavior: 'smooth', block: 'start'}); } catch (x) { sc.scrollIntoView(); } }
+      return;
+    }
     if ((el = t.closest('.gg-line'))) {
       var k = el.getAttribute('data-k'), o = !this.open[k]; this.open[k] = o;
       el.setAttribute('aria-expanded', o); el.nextElementSibling.hidden = !o; return;
