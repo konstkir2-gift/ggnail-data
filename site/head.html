@@ -321,6 +321,22 @@
     })(0);
   };
 
+  /* Любая ссылка на форму записи на сайте (кнопки «Записаться» в подвале и акциях) открывается так же, как круглая кнопка YCLIENTS:
+     на компьютере сбоку, на телефоне переходом в форму. Без виджета ссылка просто ведёт в форму. */
+  var FORM_HOST = CFG.formHost || 'n595090.yclients.ru';
+  document.addEventListener('click', function (e) {
+    var t = e.target, a = t && t.closest ? t.closest('a[href*="//' + FORM_HOST + '"]') : null;
+    if (!a || a.closest('.gg-price') || a.className.indexOf('yButton') > -1) return;
+    goal('gg_book', {section: 'site', service: (a.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 40) || 'кнопка'});
+    var w = window.yWidget;
+    if (w && typeof w.show === 'function') {
+      e.preventDefault();
+      var url = a.href;
+      try { var q = w.buildSearchQuery(); if (q) url += (url.indexOf('?') > -1 ? '&' : '?') + q; } catch (x) {}
+      w.show(url);
+    }
+  });
+
   function boot() {
     var n = document.querySelectorAll('.gg-price[data-section]');
     if (n.length && document.documentElement.className.indexOf('gg-has-price') < 0) document.documentElement.className += ' gg-has-price';
