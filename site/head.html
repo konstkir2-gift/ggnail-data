@@ -197,6 +197,43 @@
   }
   /* сравнение названий услуг без учёта регистра, кавычек, ё и латинской/русской «м» (в YCLIENTS встречаются оба варианта «Зона M») */
   function norm(s) { return String(s || '').toLowerCase().replace(/ё/g, 'е').replace(/[«»"“”„']/g, '').replace(/\u043c/g, 'm').replace(/\s+/g, ' ').trim(); }
+  /* Откуда пришёл посетитель. Запоминаем при входе на сайт и дописываем к ссылке на форму записи: форма живёт на другом
+     домене, и без этого Метрика и YCLIENTS видят запись как переход с ggnail.ru, а не как рекламу или поиск. */
+  function visitSrc() {
+    var o = null, m;
+    try { o = JSON.parse(window.sessionStorage.getItem('gg_src') || 'null'); } catch (e) {}
+    if (o) return o;
+    o = {};
+    ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'yclid', 'gclid'].forEach(function (n) {
+      m = new RegExp('[?&]' + n + '=([^&#]*)').exec(location.search);
+      if (m && m[1]) { try { o[n] = decodeURIComponent(m[1].replace(/\+/g, ' ')).slice(0, 120); } catch (e) {} }
+    });
+    if (!o.utm_source && !o.yclid && !o.gclid) {
+      var h = '';
+      try { h = document.referrer ? new URL(document.referrer).hostname.replace(/^www\./, '') : ''; } catch (e) {}
+      if (h && h === location.hostname.replace(/^www\./, '')) return {};
+      if (!h) { o.utm_source = 'direct'; o.utm_medium = 'none'; }
+      else if (/(^|\.)(yandex\.[a-z.]+|ya\.ru)$/.test(h)) { o.utm_source = 'yandex'; o.utm_medium = 'organic'; }
+      else if (/(^|\.)google\.[a-z.]+$/.test(h)) { o.utm_source = 'google'; o.utm_medium = 'organic'; }
+      else { o.utm_source = h; o.utm_medium = /(^|\.)(vk\.com|instagram\.com|t\.me|ok\.ru|dzen\.ru)$/.test(h) ? 'social' : 'referral'; }
+      o.utm_campaign = 'site';
+    }
+    try { window.sessionStorage.setItem('gg_src', JSON.stringify(o)); } catch (e) {}
+    return o;
+  }
+  function withSrc(url) {
+    var o = visitSrc(), k, add = [];
+    for (k in o) if (o.hasOwnProperty(k) && url.indexOf(k + '=') < 0) add.push(k + '=' + encodeURIComponent(o[k]));
+    return add.length ? url + (url.indexOf('?') > -1 ? '&' : '?') + add.join('&') : url;
+  }
+  /* круглая кнопка YCLIENTS открывает форму сама, поэтому источник дописываем и в её вызов */
+  function patchWidget() {
+    var w = window.yWidget;
+    if (!w || typeof w.show !== 'function' || w.ggPatched) return;
+    var orig = w.show;
+    w.show = function (url) { return orig.call(w, withSrc(url || w.href || '')); };
+    w.ggPatched = 1;
+  }
   function store(k, v) { try { if (v === undefined) return window.localStorage.getItem(k); window.localStorage.setItem(k, v); } catch (e) { return null; } }
 
   function App(root) {
@@ -346,13 +383,14 @@
     }
     if ((el = t.closest('a.gg-book'))) {
       goal('gg_book', {section: this.sec, service: el.getAttribute('data-t') || 'общая кнопка', category: this.cat, salon: this.cur().name});
+      patchWidget();
       var w = window.yWidget;
       if (w && typeof w.show === 'function') {
         e.preventDefault();
         var url = el.href;
         try { var q = w.buildSearchQuery(); if (q) url += (url.indexOf('?') > -1 ? '&' : '?') + q; } catch (x) {}
         w.show(url);
-      }
+      } else { el.href = withSrc(el.href); }
     }
   };
   App.prototype.refresh = function () {
@@ -395,14 +433,17 @@
     var t = e.target, a = t && t.closest ? t.closest('a[href*="//' + FORM_HOST + '"]') : null;
     if (!a || a.closest('.gg-price') || a.className.indexOf('yButton') > -1) return;
     goal('gg_book', {section: 'site', service: (a.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 40) || 'кнопка'});
+    patchWidget();
     var w = window.yWidget;
     if (w && typeof w.show === 'function') {
       e.preventDefault();
       var url = a.href;
       try { var q = w.buildSearchQuery(); if (q) url += (url.indexOf('?') > -1 ? '&' : '?') + q; } catch (x) {}
       w.show(url);
-    }
+    } else { a.href = withSrc(a.href); }
   });
+  visitSrc();
+  window.addEventListener('load', function () { patchWidget(); setTimeout(patchWidget, 3000); });
 
   function boot() {
     var n = document.querySelectorAll('.gg-price[data-section]');
