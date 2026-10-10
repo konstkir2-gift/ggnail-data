@@ -235,6 +235,24 @@
     w.show = function (url) { return orig.call(w, withSrc(url || w.href || '')); };
     w.ggPatched = 1;
   }
+  /* Тильда шлёт свои события (отправка формы «Оставьте контакты» и другие) через ym(). Счётчик первым запускает виджет
+     YCLIENTS, после этого код Метрики второй раз не выполняется, и ym из кода Тильды остаётся заглушкой с очередью:
+     события копятся и никуда не уходят. Передаём вызовы живому счётчику. Если ym настоящий, ничего не трогаем. */
+  function fixYm() {
+    try {
+      var y = window.ym, M = window.Ya && window.Ya._metrika, cs = M && M.counters;
+      var c = (cs && cs[COUNTER + ':0']) || window.__widgetYaCounter;
+      if (typeof y !== 'function' || !c || typeof c.hit !== 'function') return false;
+      if (String(y).indexOf('.a||[]).push(arguments)') < 0) return true;
+      var q = y.a || [], real = function (id, method) {
+        if (method === 'init') return;
+        if (String(id) === String(COUNTER) && typeof c[method] === 'function') return c[method].apply(c, [].slice.call(arguments, 2));
+      };
+      real.a = []; real.l = y.l; window.ym = real;
+      for (var i = 0; i < q.length; i++) try { real.apply(null, q[i]); } catch (x) {}
+      return true;
+    } catch (x) { return true; }
+  }
   function store(k, v) { try { if (v === undefined) return window.localStorage.getItem(k); window.localStorage.setItem(k, v); } catch (e) { return null; } }
 
   function App(root) {
@@ -455,7 +473,10 @@
     } else { a.href = withSrc(a.href); }
   });
   visitSrc();
-  window.addEventListener('load', function () { patchWidget(); setTimeout(patchWidget, 3000); });
+  window.addEventListener('load', function () {
+    patchWidget(); setTimeout(patchWidget, 3000);
+    var n = 0, t = setInterval(function () { if (fixYm() || ++n > 60) clearInterval(t); }, 500);
+  });
 
   function boot() {
     var n = document.querySelectorAll('.gg-price[data-section]');
