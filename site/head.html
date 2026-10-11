@@ -66,7 +66,9 @@
 .gg-price button{font:inherit;color:inherit;margin:0}
 .gg-hs{display:flex;overflow-x:auto;margin:0 -16px;padding:0 16px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .gg-hs::-webkit-scrollbar{display:none}
-.gg-top{height:60px;display:flex;align-items:center;padding-right:64px;font:400 19px/1 'Dih',Georgia,serif;text-transform:uppercase;letter-spacing:.02em}
+.gg-top{min-height:60px;display:flex;align-items:center;padding:8px 64px 8px 0;font:400 19px/1 'Dih',Georgia,serif;text-transform:uppercase;letter-spacing:.02em}
+.gg-top a{display:block}
+.gg-price .gg-top small{display:block;margin-top:5px;font:400 11px/1.3 'Manrope',Arial,sans-serif;letter-spacing:.02em;text-transform:none;color:#767676}
 .gg-nav{gap:14px;padding-top:4px;padding-bottom:6px}
 .gg-nav a{flex:none;width:72px;text-align:center;font-size:12px}
 .gg-nav span{display:block;width:72px;height:72px;border-radius:50%;padding:3px;border:2px solid #e3d8c8;margin-bottom:6px;background:#f4ead9}
@@ -525,6 +527,15 @@ body:not(:has(.gg-promo)) li:has(>a[href$="#hot"]),body:not(:has(.gg-promo)) a[h
   }
   /* страницы абонементов и сертификатов (web/make_offers.py). Цены вшиты в страницу при сборке. Если служба sync кладёт
      в site.json поля abon и cert, подставляем свежие; услуга, у которой абонемент убрали, со страницы исчезает. */
+  /* условия одного номинала сертификата: те же слова, что в web/make_offers.py (cert_line) */
+  function certLine(x) {
+    var m = x.m, term;
+    if (m > 0) term = 'действует ' + (m === 12 ? 'один год' : m + ' ' + (m === 1 ? 'месяц' : m < 5 ? 'месяца' : 'месяцев'));
+    else term = m === 0 ? 'без срока' : 'срок назовёт администратор';
+    var p = [x.goods ? 'услуги и товары' : 'услуги', x.multi ? 'можно тратить частями' : 'на один визит', term];
+    if (!x.on) p.push('продаётся только в салоне');
+    return p.join(', ');
+  }
   function offersApply(d) {
     if (!d) return;
     if (d.abon) [].forEach.call(document.querySelectorAll('.gg-ab[data-ab-s]'), function (c) {
@@ -538,8 +549,8 @@ body:not(:has(.gg-promo)) li:has(>a[href$="#hot"]),body:not(:has(.gg-promo)) a[h
         if ((sm = li.querySelector('[data-ab="per' + n + '"]'))) sm.textContent = 'по ' + num(Math.round(v[0] / n)) + NBSP + '₽ за сеанс';
       });
     });
-    if (d.cert && d.cert.length) [].forEach.call(document.querySelectorAll('.gg-certs[data-certs]'), function (c) {
-      c.innerHTML = d.cert.map(function (x) { return '<span>' + num(x) + NBSP + '₽</span>'; }).join('');
+    if (d.certinfo && d.certinfo.length) [].forEach.call(document.querySelectorAll('.gg-certlist[data-certs]'), function (c) {
+      c.innerHTML = d.certinfo.map(function (x) { return '<li><b>' + num(x.b) + NBSP + '₽</b><span>' + certLine(x) + '</span></li>'; }).join('');
     });
   }
   function offersLoad() {
