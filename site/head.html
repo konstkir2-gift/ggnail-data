@@ -148,7 +148,7 @@
 .gg-price .gg-rev-more{font-size:13px;margin:10px 0 0}
 .gg-price .gg-rev-more a{color:#767676 !important;text-decoration:underline !important}
 #rec1338474401,#rec1589109091{padding-bottom:56px;background-color:#fff5e9}
-body:not(:has(#rec1603685531)) li:has(>a[href$="#hot"]),body:not(:has(#rec1603685531)) a[href$="#hot"]{display:none !important}
+body:not(:has(.gg-promo)) li:has(>a[href$="#hot"]),body:not(:has(.gg-promo)) a[href$="#hot"]{display:none !important}
 @media (max-width:940px){
 #rec1338474401,#rec1589109091{padding-bottom:36px}
 .gg-crumbs{padding-right:64px}
@@ -476,7 +476,7 @@ body:not(:has(#rec1603685531)) li:has(>a[href$="#hot"]),body:not(:has(#rec160368
   var FORM_HOST = CFG.formHost || 'n595090.yclients.ru';
   document.addEventListener('click', function (e) {
     var t = e.target, a = t && t.closest ? t.closest('a[href*="//' + FORM_HOST + '"]') : null;
-    if (!a || a.closest('.gg-price') || a.className.indexOf('yButton') > -1) return;
+    if (!a || a.closest('.gg-price[data-section]') || a.className.indexOf('yButton') > -1) return;
     goal('gg_book', {section: 'site', service: (a.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 40) || 'кнопка'});
     patchWidget();
     var w = window.yWidget;
@@ -517,11 +517,44 @@ body:not(:has(#rec1603685531)) li:has(>a[href$="#hot"]),body:not(:has(#rec160368
     }
     if (b.className.indexOf('gg-rev-show') > -1) revShow(box);
   });
-  /* блок акции в подвале (rec1603685531) скрыт: прячем и пункт меню «Акции». Вернётся сам, когда блок снова покажут.
+  /* блок акции в подвале (web/make_promo.py, класс gg-promo). Пока его нет на странице, прячем пункт меню «Акции».
      В новых браузерах это делает правило :has в gg.css, здесь запасной путь для старых. */
   function promoLinks() {
-    if (document.getElementById('rec1603685531')) return;
+    if (document.querySelector('.gg-promo')) return;
     [].forEach.call(document.querySelectorAll('a[href$="#hot"]'), function (a) { var li = a.closest ? a.closest('li') : null; (li || a).style.display = 'none'; });
+  }
+  /* страницы абонементов и сертификатов (web/make_offers.py). Цены вшиты в страницу при сборке. Если служба sync кладёт
+     в site.json поля abon и cert, подставляем свежие; услуга, у которой абонемент убрали, со страницы исчезает. */
+  function offersApply(d) {
+    if (!d) return;
+    if (d.abon) [].forEach.call(document.querySelectorAll('.gg-ab[data-ab-s]'), function (c) {
+      var e = d.abon[c.getAttribute('data-ab-s')], one = c.querySelector('[data-ab="one"]');
+      if (!e || !e.k) { c.style.display = 'none'; return; }
+      if (one && e.one) one.textContent = num(e.one) + NBSP + '₽';
+      [].forEach.call(c.querySelectorAll('li[data-ab-n]'), function (li) {
+        var n = li.getAttribute('data-ab-n'), v = e.k[n], b, sm;
+        if (!v) { li.style.display = 'none'; return; }
+        if ((b = li.querySelector('[data-ab="' + n + '"]'))) b.textContent = num(v[0]) + NBSP + '₽';
+        if ((sm = li.querySelector('[data-ab="per' + n + '"]'))) sm.textContent = 'по ' + num(Math.round(v[0] / n)) + NBSP + '₽ за сеанс';
+      });
+    });
+    if (d.cert && d.cert.length) [].forEach.call(document.querySelectorAll('.gg-certs[data-certs]'), function (c) {
+      c.innerHTML = d.cert.map(function (x) { return '<span>' + num(x) + NBSP + '₽</span>'; }).join('');
+    });
+  }
+  function offersLoad() {
+    if (!document.querySelector('.gg-price[data-offer]')) return;
+    function done(d) { offersApply(d); revAuto(d.rev !== false); }
+    try {
+      var c = window.sessionStorage.getItem('gg_data');
+      if (c) { c = JSON.parse(c); if (Date.now() - c.at < 600000) { done(c.d); return; } }
+    } catch (e) {}
+    if (!window.fetch) return;
+    fetch(DATA_URL).then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function (d) {
+      if (!d || d.v !== 2 || !d.branches) return;
+      try { window.sessionStorage.setItem('gg_data', JSON.stringify({at: Date.now(), d: d})); } catch (e) {}
+      done(d);
+    }).catch(function () {});
   }
   visitSrc();
   window.addEventListener('load', function () {
@@ -530,7 +563,7 @@ body:not(:has(#rec1603685531)) li:has(>a[href$="#hot"]),body:not(:has(#rec160368
   });
 
   function boot() {
-    promoLinks();
+    promoLinks(); offersLoad();
     var n = document.querySelectorAll('.gg-price[data-section]');
     if (n.length && document.documentElement.className.indexOf('gg-has-price') < 0) document.documentElement.className += ' gg-has-price';
     for (var i = 0; i < n.length; i++) { if (!n[i].ggApp) n[i].ggApp = new App(n[i]); }
