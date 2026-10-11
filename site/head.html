@@ -573,8 +573,15 @@ body:not(:has(.gg-promo)) li:has(>a[href$="#hot"]),body:not(:has(.gg-promo)) a[h
     var n = 0, t = setInterval(function () { if (fixYm() || ++n > 60) clearInterval(t); }, 500);
   });
 
+  /* у блока акции и у вопроса про скидки стоит data-until (последний день показа, по Москве): после него убираем их со страницы */
+  function expire() {
+    var today = new Date(Date.now() + 3 * 3600 * 1000).toISOString().slice(0, 10);
+    [].forEach.call(document.querySelectorAll('[data-until]'), function (el) {
+      if (today > el.getAttribute('data-until') && el.parentNode) el.parentNode.removeChild(el);
+    });
+  }
   function boot() {
-    promoLinks(); offersLoad();
+    expire(); promoLinks(); offersLoad();
     var n = document.querySelectorAll('.gg-price[data-section]');
     if (n.length && document.documentElement.className.indexOf('gg-has-price') < 0) document.documentElement.className += ' gg-has-price';
     for (var i = 0; i < n.length; i++) { if (!n[i].ggApp) n[i].ggApp = new App(n[i]); }
