@@ -185,6 +185,7 @@ body:not(:has(.gg-promo)) li:has(>a[href$="#hot"]),body:not(:has(.gg-promo)) a[h
   var DATA_URL = CFG.dataUrl || 'https://konstkir2-gift.github.io/ggnail-data/site.json';
   var DATA_URL2 = CFG.dataUrl2 === undefined ? 'https://cdn.jsdelivr.net/gh/konstkir2-gift/ggnail-data@main/site.json' : CFG.dataUrl2;
   var COUNTER = CFG.counter || 87156332;
+  var FORM_HOST = CFG.formHost || 'n595090.yclients.ru';
   var LABELS = {
     nails: {base: 'Мастер', expert: 'Эксперт', top: 'Топ-мастер', instructor: 'Инструктор'},
     hair: {base: 'Стилист', top: 'Топ-стилист'},
@@ -195,7 +196,75 @@ body:not(:has(.gg-promo)) li:has(>a[href$="#hot"]),body:not(:has(.gg-promo)) a[h
   var NBSP = ' ';
 
   function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
-  function num(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, NBSP); }
+  function int(v) { v = Number(v); return isFinite(v) ? Math.round(v) : 0; }
+  function num(n) { return String(int(n)).replace(/\B(?=(\d{3})+(?!\d))/g, NBSP); }
+  /* Свежие данные приходят с чужого хостинга (GitHub Pages, запасной адрес jsDelivr). Если репозиторий или аккаунт взломают, в файле
+     может оказаться что угодно. Поэтому перед использованием приводим всё к ожидаемому виду: числа к числам, строки к строкам,
+     категории только известные, а адрес формы записи из файла не берём вовсе (остаётся тот, что вшит в страницу). */
+  var CATS = {base: 1, expert: 1, top: 1, instructor: 1};
+  function str(v, n) { return typeof v === 'string' ? v.slice(0, n || 400) : ''; }
+  function cleanP(p) {
+    var o = {}, c;
+    if (!p || typeof p !== 'object') return o;
+    for (c in p) if (p.hasOwnProperty(c) && CATS[c] === 1 && p[c] && p[c].length >= 3) o[c] = [int(p[c][0]), int(p[c][1]), int(p[c][2]), int(p[c][3]), int(p[c][4])];
+    return o;
+  }
+  function clean(d, form) {
+    if (!d || d.v !== 2 || !Array.isArray(d.branches)) return null;
+    var out = {v: 2, form: form || '', built: str(d.built, 40), checked: str(d.checked, 20), hash: str(d.hash, 40), rev: d.rev !== false, branches: []};
+    d.branches.forEach(function (b) {
+      if (!b || !b.sec || typeof b.sec !== 'object') return;
+      var nb = {id: int(b.id), name: str(b.name, 80), sec: {}}, k;
+      for (k in b.sec) if (b.sec.hasOwnProperty(k) && /^[a-z]{2,12}$/.test(k)) {
+        var sc = b.sec[k];
+        if (!sc || !Array.isArray(sc.subs)) continue;
+        nb.sec[k] = {
+          cats: (Array.isArray(sc.cats) ? sc.cats : []).filter(function (c) { return CATS[c] === 1; }),
+          subs: sc.subs.map(function (x) {
+            return {t: str(x && x.t, 120), rows: (x && Array.isArray(x.rows) ? x.rows : []).map(function (r) {
+              var nr = {t: str(r && r.t, 200), n: str(r && r.n, 1500)};
+              if (r && Array.isArray(r.vars)) nr.vars = r.vars.map(function (v) { return {l: str(v && v.l, 80), p: cleanP(v && v.p)}; });
+              else nr.p = cleanP(r && r.p);
+              return nr;
+            })};
+          })
+        };
+      }
+      out.branches.push(nb);
+    });
+    if (!out.branches.length) return null;
+    if (d.abon && typeof d.abon === 'object') {
+      out.abon = {};
+      for (var n in d.abon) if (d.abon.hasOwnProperty(n)) {
+        var e = d.abon[n], kk = {}, q;
+        if (!e || !e.k || typeof e.k !== 'object') continue;
+        for (q in e.k) if (e.k.hasOwnProperty(q) && /^\d{1,2}$/.test(q) && e.k[q]) kk[q] = [int(e.k[q][0]), int(e.k[q][1])];
+        out.abon[n] = {one: int(e.one), k: kk};
+      }
+    }
+    if (Array.isArray(d.cert)) out.cert = d.cert.map(int);
+    if (Array.isArray(d.certinfo)) out.certinfo = d.certinfo.map(function (x) { return {b: int(x && x.b), multi: x && x.multi ? 1 : 0, m: int(x && x.m), goods: x && x.goods ? 1 : 0, on: x && x.on ? 1 : 0}; });
+    return out;
+  }
+  /* Свежий файл принимаем, только если он похож на вшитую копию: салоны те же, раздел не «похудел» вдвое, цены не уехали в разы.
+     Так подменённый файл не покажет «маникюр за 1 рубль» и не подставит в ссылку записи чужой салон. Если прайс в YCLIENTS честно
+     изменился настолько сильно, страницы надо пересобрать и опубликовать: вшитая копия обновится. */
+  function plausible(base, d, sec) {
+    var ids = {}, was = {}, n0 = 0, n1 = 0, bad = false;
+    base.branches.forEach(function (b) { ids[b.id] = 1; });
+    d.branches = d.branches.filter(function (b) { return ids[b.id] === 1; });
+    if (!d.branches.length) return false;
+    function each(data, fn) {
+      data.branches.forEach(function (b) {
+        var s = b.sec && b.sec[sec]; if (!s) return;
+        s.subs.forEach(function (x) { x.rows.forEach(function (r) { (r.vars || [r]).forEach(function (v) { for (var c in v.p) if (v.p.hasOwnProperty(c)) fn(v.p[c]); }); }); });
+      });
+    }
+    each(base, function (p) { n0++; was[p[0]] = p[1]; });
+    each(d, function (p) { n1++; var o = was[p[0]]; if (o > 0 && p[1] > 0 && (p[1] < o * 0.4 || p[1] > o * 2.5)) bad = true; });
+    return !bad && n1 >= n0 * 0.5;
+  }
+  function sameHost(a) { try { return new URL(a.href).hostname === FORM_HOST; } catch (x) { return false; } }
   function price(p) {
     if (!p) return 'нет';
     if (!p[1] && !p[2]) return 'бесплатно';
@@ -282,6 +351,7 @@ body:not(:has(.gg-promo)) li:has(>a[href$="#hot"]),body:not(:has(.gg-promo)) a[h
     this.sec = root.getAttribute('data-section');
     this.box = root.querySelector('.gg-app');
     this.data = JSON.parse(root.querySelector('script.gg-data').textContent);
+    this.base = this.data;   /* вшитая в страницу копия: с ней сверяем свежий файл */
     this.open = {};
     /* страница одной услуги: показываем только её строки, сразу раскрытыми */
     this.only = (root.getAttribute('data-only') || '').split('|').map(norm).filter(Boolean);
@@ -429,6 +499,7 @@ body:not(:has(.gg-promo)) li:has(>a[href$="#hot"]),body:not(:has(.gg-promo)) a[h
       el.setAttribute('aria-expanded', o); el.nextElementSibling.hidden = !o; return;
     }
     if ((el = t.closest('a.gg-book'))) {
+      if (!sameHost(el)) return;
       goal('gg_book', {section: this.sec, service: el.getAttribute('data-t') || 'общая кнопка', category: this.cat, salon: this.cur().name});
       patchWidget();
       var w = window.yWidget;
@@ -443,7 +514,8 @@ body:not(:has(.gg-promo)) li:has(>a[href$="#hot"]),body:not(:has(.gg-promo)) a[h
   App.prototype.refresh = function () {
     var self = this;
     function use(d) {
-      if (!d || d.v !== 2 || !d.branches) return;
+      d = clean(d, self.base.form);
+      if (!d || !plausible(self.base, d, self.sec)) return;
       if (d.built && self.data.built && d.built < self.data.built) return;
       if (d.hash === self.data.hash) {
         /* цены те же, обновилась только дата сверки */
@@ -475,10 +547,9 @@ body:not(:has(.gg-promo)) li:has(>a[href$="#hot"]),body:not(:has(.gg-promo)) a[h
 
   /* Любая ссылка на форму записи на сайте (кнопки «Записаться» в подвале и акциях) открывается так же, как круглая кнопка YCLIENTS:
      на компьютере сбоку, на телефоне переходом в форму. Без виджета ссылка просто ведёт в форму. */
-  var FORM_HOST = CFG.formHost || 'n595090.yclients.ru';
   document.addEventListener('click', function (e) {
     var t = e.target, a = t && t.closest ? t.closest('a[href*="//' + FORM_HOST + '"]') : null;
-    if (!a || a.closest('.gg-price[data-section]') || a.className.indexOf('yButton') > -1) return;
+    if (!a || !sameHost(a) || a.closest('.gg-price[data-section]') || a.className.indexOf('yButton') > -1) return;
     goal('gg_book', {section: 'site', service: (a.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 40) || 'кнопка'});
     patchWidget();
     var w = window.yWidget;
@@ -494,7 +565,7 @@ body:not(:has(.gg-promo)) li:has(>a[href$="#hot"]),body:not(:has(.gg-promo)) a[h
      При сбое Яндекса (rev: false) остаются значок и кнопка «Показать отзывы»: клиент не видит чужое «Что-то пошло не так». */
   function revShow(box) {
     var f = box.querySelector('.gg-rev-box'); if (!f || !f.hidden) return;
-    f.innerHTML = '<iframe title="Отзывы о салоне G&amp;G на Яндекс Картах" src="https://yandex.ru/maps-reviews-widget/' + box.getAttribute('data-org') + '?comments"></iframe>';
+    f.innerHTML = '<iframe title="Отзывы о салоне G&amp;G на Яндекс Картах" src="https://yandex.ru/maps-reviews-widget/' + String(box.getAttribute('data-org') || '').replace(/\D/g, '') + '?comments"></iframe>';
     f.hidden = false; box.querySelector('.gg-rev-row').style.display = 'none';
   }
   function revAuto(ok) {
@@ -507,7 +578,7 @@ body:not(:has(.gg-promo)) li:has(>a[href$="#hot"]),body:not(:has(.gg-promo)) a[h
   }
   document.addEventListener('click', function (e) {
     var b = e.target && e.target.closest ? e.target.closest('.gg-rev button') : null; if (!b) return;
-    var box = b.closest('.gg-rev'), org = b.getAttribute('data-org'), W, f;
+    var box = b.closest('.gg-rev'), org = String(b.getAttribute('data-org') || '').replace(/\D/g, ''), W, f;
     if (org) {
       /* переключили салон */
       W = 'https://yandex.ru/maps-reviews-widget/' + org; box.setAttribute('data-org', org);
@@ -536,16 +607,20 @@ body:not(:has(.gg-promo)) li:has(>a[href$="#hot"]),body:not(:has(.gg-promo)) a[h
     if (!x.on) p.push('продаётся только в салоне');
     return p.join(', ');
   }
+  /* новая цена абонемента принимается, если она не дальше чем в 2,5 раза от вшитой в страницу */
+  function near(el, v) { var o = int(String(el.textContent).replace(/\D/g, '')); return !o || (v >= o * 0.4 && v <= o * 2.5); }
   function offersApply(d) {
     if (!d) return;
     if (d.abon) [].forEach.call(document.querySelectorAll('.gg-ab[data-ab-s]'), function (c) {
       var e = d.abon[c.getAttribute('data-ab-s')], one = c.querySelector('[data-ab="one"]');
       if (!e || !e.k) { c.style.display = 'none'; return; }
-      if (one && e.one) one.textContent = num(e.one) + NBSP + '₽';
+      if (one && e.one && near(one, e.one)) one.textContent = num(e.one) + NBSP + '₽';
       [].forEach.call(c.querySelectorAll('li[data-ab-n]'), function (li) {
         var n = li.getAttribute('data-ab-n'), v = e.k[n], b, sm;
         if (!v) { li.style.display = 'none'; return; }
-        if ((b = li.querySelector('[data-ab="' + n + '"]'))) b.textContent = num(v[0]) + NBSP + '₽';
+        b = li.querySelector('[data-ab="' + n + '"]');
+        if (!b || !near(b, v[0])) return;
+        b.textContent = num(v[0]) + NBSP + '₽';
         if ((sm = li.querySelector('[data-ab="per' + n + '"]'))) sm.textContent = 'по ' + num(Math.round(v[0] / n)) + NBSP + '₽ за сеанс';
       });
     });
@@ -555,7 +630,7 @@ body:not(:has(.gg-promo)) li:has(>a[href$="#hot"]),body:not(:has(.gg-promo)) a[h
   }
   function offersLoad() {
     if (!document.querySelector('.gg-price[data-offer]')) return;
-    function done(d) { offersApply(d); revAuto(d.rev !== false); }
+    function done(d) { d = clean(d, ''); if (!d) return; offersApply(d); revAuto(d.rev !== false); }
     try {
       var c = window.sessionStorage.getItem('gg_data');
       if (c) { c = JSON.parse(c); if (Date.now() - c.at < 600000) { done(c.d); return; } }
