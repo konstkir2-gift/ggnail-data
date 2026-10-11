@@ -142,7 +142,7 @@
 .gg-rev-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
 .gg-rev-badge{width:150px;height:96px;border:0;border-radius:10px;display:block;background:#f3f1ed}
 .gg-price .gg-rev-show{border:1px solid #980003;color:#980003;background:transparent;border-radius:40px;padding:11px 22px;font:600 14px/1.2 'Manrope',Arial,sans-serif;cursor:pointer}
-.gg-rev-box{height:560px;border:1px solid #e3ddd2;border-radius:12px;overflow:hidden;background:#fff}
+.gg-rev-box{height:640px;border:1px solid #e3ddd2;border-radius:12px;overflow:hidden;background:#fff}
 .gg-rev-box[hidden]{display:none}
 .gg-rev-box iframe{width:100%;height:100%;border:0;display:block}
 .gg-price .gg-rev-more{font-size:13px;margin:10px 0 0}
@@ -452,21 +452,21 @@ body:not(:has(#rec1603685531)) li:has(>a[href$="#hot"]),body:not(:has(#rec160368
     }
     try {
       var c = window.sessionStorage.getItem('gg_data');
-      if (c) { c = JSON.parse(c); if (Date.now() - c.at < 600000) { use(c.d); return; } }
+      if (c) { c = JSON.parse(c); if (Date.now() - c.at < 600000) { use(c.d); revAuto(c.d.rev !== false); return; } }
     } catch (e) {}
     if (!window.fetch) return;
     /* запасной адрес отдаёт ту же копию через другую сеть; метка дня не даёт браузеру держать её неделю */
     var urls = [DATA_URL];
     if (DATA_URL2) urls.push(DATA_URL2 + (DATA_URL2.indexOf('?') < 0 ? '?d=' : '&d=') + new Date().toISOString().slice(0, 10));
     (function next(i) {
-      if (i >= urls.length) return;
+      if (i >= urls.length) { revAuto(self.data.rev !== false); return; }
       var ctl = window.AbortController ? new AbortController() : null;
       var t = setTimeout(function () { if (ctl) ctl.abort(); }, 5000);
       fetch(urls[i], ctl ? {signal: ctl.signal} : {}).then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function (d) {
         clearTimeout(t);
         if (!d || d.v !== 2 || !d.branches) throw 0;
         try { window.sessionStorage.setItem('gg_data', JSON.stringify({at: Date.now(), d: d})); } catch (e) {}
-        use(d);
+        use(d); revAuto(d.rev !== false);
       }).catch(function () { clearTimeout(t); next(i + 1); });
     })(0);
   };
@@ -487,25 +487,35 @@ body:not(:has(#rec1603685531)) li:has(>a[href$="#hot"]),body:not(:has(#rec160368
       w.show(url);
     } else { a.href = withSrc(a.href); }
   });
-  /* блок отзывов: значок с рейтингом Яндекс Карт виден сразу, список отзывов подгружается по кнопке.
-     Виджет со списком тяжёлый и при сбоях Яндекса показывает «Что-то пошло не так», поэтому сам не грузится. */
+  /* блок отзывов. Значок с рейтингом Яндекс Карт виден всегда. Список отзывов (тяжёлый виджет) подгружается сам, когда блок
+     доходит до экрана, но только если Яндекс жив: служба sync раз в час проверяет виджет и пишет в site.json поле rev.
+     При сбое Яндекса (rev: false) остаются значок и кнопка «Показать отзывы»: клиент не видит чужое «Что-то пошло не так». */
+  function revShow(box) {
+    var f = box.querySelector('.gg-rev-box'); if (!f || !f.hidden) return;
+    f.innerHTML = '<iframe title="Отзывы о салоне G&amp;G на Яндекс Картах" src="https://yandex.ru/maps-reviews-widget/' + box.getAttribute('data-org') + '?comments"></iframe>';
+    f.hidden = false; box.querySelector('.gg-rev-row').style.display = 'none';
+  }
+  function revAuto(ok) {
+    if (!ok || !window.IntersectionObserver) return;
+    [].forEach.call(document.querySelectorAll('.gg-rev'), function (box) {
+      if (box.ggObs) return; box.ggObs = 1;
+      var io = new IntersectionObserver(function (es) { if (es[0].isIntersecting) { io.disconnect(); revShow(box); } }, {rootMargin: '150px'});
+      io.observe(box);
+    });
+  }
   document.addEventListener('click', function (e) {
     var b = e.target && e.target.closest ? e.target.closest('.gg-rev button') : null; if (!b) return;
-    var box = b.closest('.gg-rev'), org = b.getAttribute('data-org') || box.getAttribute('data-org'), W = 'https://yandex.ru/maps-reviews-widget/' + org, f;
-    if (b.getAttribute('data-org')) {
+    var box = b.closest('.gg-rev'), org = b.getAttribute('data-org'), W, f;
+    if (org) {
       /* переключили салон */
-      box.setAttribute('data-org', org);
+      W = 'https://yandex.ru/maps-reviews-widget/' + org; box.setAttribute('data-org', org);
       [].forEach.call(box.querySelectorAll('button[data-org]'), function (x) { x.className = x === b ? 'gg-on' : ''; });
       if ((f = box.querySelector('.gg-rev-badge'))) f.src = W;
       if ((f = box.querySelector('.gg-rev-box iframe'))) f.src = W + '?comments';
       if ((f = box.querySelector('.gg-rev-more a'))) f.href = 'https://yandex.ru/maps/org/g_g/' + org + '/reviews/';
       return;
     }
-    if (b.className.indexOf('gg-rev-show') > -1) {
-      f = box.querySelector('.gg-rev-box');
-      f.innerHTML = '<iframe title="Отзывы о салоне G&amp;G на Яндекс Картах" src="' + W + '?comments"></iframe>';
-      f.hidden = false; box.querySelector('.gg-rev-row').style.display = 'none';
-    }
+    if (b.className.indexOf('gg-rev-show') > -1) revShow(box);
   });
   /* блок акции в подвале (rec1603685531) скрыт: прячем и пункт меню «Акции». Вернётся сам, когда блок снова покажут.
      В новых браузерах это делает правило :has в gg.css, здесь запасной путь для старых. */
