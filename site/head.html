@@ -246,23 +246,42 @@ body:not(:has(.gg-promo)) li:has(>a[href$="#hot"]),body:not(:has(.gg-promo)) a[h
     if (Array.isArray(d.certinfo)) out.certinfo = d.certinfo.map(function (x) { return {b: int(x && x.b), multi: x && x.multi ? 1 : 0, m: int(x && x.m), goods: x && x.goods ? 1 : 0, on: x && x.on ? 1 : 0}; });
     return out;
   }
-  /* Свежий файл принимаем, только если он похож на вшитую копию: салоны те же, раздел не «похудел» вдвое, цены не уехали в разы.
-     Так подменённый файл не покажет «маникюр за 1 рубль» и не подставит в ссылку записи чужой салон. Если прайс в YCLIENTS честно
-     изменился настолько сильно, страницы надо пересобрать и опубликовать: вшитая копия обновится. */
+  /* Свежий файл принимаем, только если он похож на вшитую копию: салоны и категории те же, большинство услуг узнаётся по связке
+     «салон + категория + service_id», а цены и длительности не уехали в разы. Одного совпадения количества строк недостаточно:
+     иначе злоумышленник мог заменить все service_id и показать любую цену. Новые услуги появляются после штатной пересборки страниц. */
   function plausible(base, d, sec) {
-    var ids = {}, was = {}, n0 = 0, n1 = 0, bad = false;
-    base.branches.forEach(function (b) { ids[b.id] = 1; });
-    d.branches = d.branches.filter(function (b) { return ids[b.id] === 1; });
-    if (!d.branches.length) return false;
+    var ids = {}, branchSeen = {}, was = {}, seen = {}, n0 = 0, n1 = 0, bad = false;
+    base.branches.forEach(function (b) { ids[b.id] = b; });
+    /* Оставляем только штатные филиалы; их число и названия тоже должны совпасть. */
+    d.branches = d.branches.filter(function (b) { return !!ids[b.id]; });
+    if (!d.branches.length || d.branches.length !== base.branches.length) return false;
+    for (var i = 0; i < d.branches.length; i++) {
+      var db = d.branches[i], bb = ids[db.id], bs = bb && bb.sec && bb.sec[sec], ds = db.sec && db.sec[sec];
+      if (!bb || branchSeen[db.id] || db.name !== bb.name || (!!bs !== !!ds)) return false;
+      branchSeen[db.id] = 1;
+      if (bs && ds && bs.cats.join('|') !== ds.cats.join('|')) return false;
+    }
+    function near(a, b, lo, hi) {
+      if (a === b) return true;
+      if (a <= 0 || b <= 0) return false;
+      return b >= a * lo && b <= a * hi;
+    }
     function each(data, fn) {
       data.branches.forEach(function (b) {
         var s = b.sec && b.sec[sec]; if (!s) return;
-        s.subs.forEach(function (x) { x.rows.forEach(function (r) { (r.vars || [r]).forEach(function (v) { for (var c in v.p) if (v.p.hasOwnProperty(c)) fn(v.p[c]); }); }); });
+        s.subs.forEach(function (x) { x.rows.forEach(function (r) { (r.vars || [r]).forEach(function (v) { for (var c in v.p) if (v.p.hasOwnProperty(c)) fn(b.id + '|' + c + '|' + v.p[c][0], v.p[c]); }); }); });
       });
     }
-    each(base, function (p) { n0++; was[p[0]] = p[1]; });
-    each(d, function (p) { n1++; var o = was[p[0]]; if (o > 0 && p[1] > 0 && (p[1] < o * 0.4 || p[1] > o * 2.5)) bad = true; });
-    return !bad && n1 >= n0 * 0.5;
+    each(base, function (key, p) { n0++; was[key] = p; });
+    each(d, function (key, p) {
+      n1++;
+      var o = was[key];
+      if (!o || p[0] <= 0 || seen[key]) { bad = true; return; }
+      seen[key] = 1;
+      if (!near(o[1], p[1], 0.4, 2.5) || !near(o[2], p[2], 0.4, 2.5) ||
+          !near(o[3], p[3], 0.4, 2.5) || !near(o[4], p[4], 0.4, 2.5)) bad = true;
+    });
+    return !bad && n0 > 0 && n1 >= n0 * 0.7;
   }
   function sameHost(a) { try { return new URL(a.href).hostname === FORM_HOST; } catch (x) { return false; } }
   function price(p) {
