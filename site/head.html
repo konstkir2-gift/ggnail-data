@@ -246,42 +246,56 @@ body:not(:has(.gg-promo)) li:has(>a[href$="#hot"]),body:not(:has(.gg-promo)) a[h
     if (Array.isArray(d.certinfo)) out.certinfo = d.certinfo.map(function (x) { return {b: int(x && x.b), multi: x && x.multi ? 1 : 0, m: int(x && x.m), goods: x && x.goods ? 1 : 0, on: x && x.on ? 1 : 0}; });
     return out;
   }
-  /* Свежий файл принимаем, только если он похож на вшитую копию: салоны и категории те же, большинство услуг узнаётся по связке
-     «салон + категория + service_id», а цены и длительности не уехали в разы. Одного совпадения количества строк недостаточно:
-     иначе злоумышленник мог заменить все service_id и показать любую цену. Новые услуги появляются после штатной пересборки страниц. */
-  function plausible(base, d, sec) {
-    var ids = {}, branchSeen = {}, was = {}, seen = {}, n0 = 0, n1 = 0, bad = false;
+  /* Свежий файл принимаем, только если он похож на вшитую копию (переписано 15.10.2026):
+     - филиалы те же (номера и названия), раздел есть ровно там, где был;
+     - каждую ячейку цены узнаём по связке «филиал + категория + номер услуги». Узнанные не должны уехать по цене и времени
+       дальше чем в 2,5 раза, и узнанных должно быть не меньше 70% от вшитой копии: подменить все номера услуг нельзя;
+     - новые ячейки (новая услуга или новая категория мастера в YCLIENTS) допускаются, но не больше пятой части копии.
+       Если название то же, цену сверяем с прежней, как у узнанной; совсем новую услугу ставим в коридор цен её подраздела
+       в этом филиале: новая услуга появится на сайте сразу, а «маникюр за 1 рубль» не пройдёт;
+     - scope: страница одной услуги вшивает только свои строки, а файл приходит с целым разделом. Чужие для неё строки
+       она не показывает, поэтому и не проверяет (без этого страницы услуг отвергали бы любой свежий файл). */
+  function plausible(base, d, sec, scope) {
+    var ids = {}, branchSeen = {}, was = {}, named = {}, seen = {}, lo = {}, hi = {}, cats = {}, n0 = 0, known = 0, fresh = 0, bad = false;
     base.branches.forEach(function (b) { ids[b.id] = b; });
-    /* Оставляем только штатные филиалы; их число и названия тоже должны совпасть. */
     d.branches = d.branches.filter(function (b) { return !!ids[b.id]; });
     if (!d.branches.length || d.branches.length !== base.branches.length) return false;
     for (var i = 0; i < d.branches.length; i++) {
-      var db = d.branches[i], bb = ids[db.id], bs = bb && bb.sec && bb.sec[sec], ds = db.sec && db.sec[sec];
-      if (!bb || branchSeen[db.id] || db.name !== bb.name || (!!bs !== !!ds)) return false;
-      branchSeen[db.id] = 1;
-      if (bs && ds && bs.cats.join('|') !== ds.cats.join('|')) return false;
+      var db = d.branches[i], bb = ids[db.id], bs = bb.sec && bb.sec[sec], ds = db.sec && db.sec[sec];
+      if (branchSeen[db.id] || db.name !== bb.name || (!!bs !== !!ds)) return false;
+      if (ds && ds.cats.some(function (c, k) { return ds.cats.indexOf(c) !== k; })) return false;   /* категории без повторов */
+      branchSeen[db.id] = 1; cats[db.id] = ds ? ds.cats : [];
     }
-    function near(a, b, lo, hi) {
-      if (a === b) return true;
-      if (a <= 0 || b <= 0) return false;
-      return b >= a * lo && b <= a * hi;
-    }
+    function near(a, b) { if (a === b) return true; if (a <= 0 || b <= 0) return false; return b >= a * 0.4 && b <= a * 2.5; }
     function each(data, fn) {
       data.branches.forEach(function (b) {
         var s = b.sec && b.sec[sec]; if (!s) return;
-        s.subs.forEach(function (x) { x.rows.forEach(function (r) { (r.vars || [r]).forEach(function (v) { for (var c in v.p) if (v.p.hasOwnProperty(c)) fn(b.id + '|' + c + '|' + v.p[c][0], v.p[c]); }); }); });
+        s.subs.forEach(function (x) { x.rows.forEach(function (r) { (r.vars || [r]).forEach(function (v) {
+          for (var c in v.p) if (v.p.hasOwnProperty(c)) fn(b.id, c, v.p[c], r, x.t, v.l);
+        }); }); });
       });
     }
-    each(base, function (key, p) { n0++; was[key] = p; });
-    each(d, function (key, p) {
-      n1++;
-      var o = was[key];
-      if (!o || p[0] <= 0 || seen[key]) { bad = true; return; }
-      seen[key] = 1;
-      if (!near(o[1], p[1], 0.4, 2.5) || !near(o[2], p[2], 0.4, 2.5) ||
-          !near(o[3], p[3], 0.4, 2.5) || !near(o[4], p[4], 0.4, 2.5)) bad = true;
+    /* коридор цен: по подразделу (маникюр, дизайн, педикюр...) и запасной по филиалу */
+    function span(k, p) { var m = p[1] > 0 ? p[1] : p[2]; lo[k] = lo[k] === undefined ? m : Math.min(lo[k], m); hi[k] = Math.max(hi[k] || 0, p[2]); }
+    each(base, function (bid, c, p, r, st, l) {
+      n0++; was[bid + '|' + c + '|' + p[0]] = p; named[bid + '|' + c + '|' + norm(r.t) + '|' + norm(l)] = p;
+      if (p[2] > 0) { span(bid, p); span(bid + '|' + norm(st), p); }
     });
-    return !bad && n0 > 0 && n1 >= n0 * 0.7;
+    each(d, function (bid, c, p, r, st, l) {
+      var key = bid + '|' + c + '|' + p[0], o = was[key];
+      if (!o && scope && !scope(r, st)) return;
+      /* категория цены должна быть в переключателе филиала: иначе её цены молча пропадут со страницы */
+      if (p[0] <= 0 || seen[key] || (p[2] > 0 && p[1] > p[2]) || cats[bid].indexOf(c) < 0) { bad = true; return; }
+      seen[key] = 1;
+      if (o) { known++; if (!near(o[1], p[1]) || !near(o[2], p[2]) || !near(o[3], p[3]) || !near(o[4], p[4])) bad = true; return; }
+      fresh++;
+      /* та же услуга под новым номером: цену сверяем с прежней по названию, как узнанную */
+      o = named[bid + '|' + c + '|' + norm(r.t) + '|' + norm(l)];
+      if (o) { if (!near(o[1], p[1]) || !near(o[2], p[2])) bad = true; return; }
+      var k = hi[bid + '|' + norm(st)] !== undefined ? bid + '|' + norm(st) : bid;
+      if (hi[k] === undefined || p[2] <= 0 || p[2] > hi[k] * 2.5 || (p[1] > 0 ? p[1] : p[2]) < lo[k] * 0.4) bad = true;
+    });
+    return !bad && n0 > 0 && known >= n0 * 0.7 && fresh <= Math.max(4, n0 * 0.2);
   }
   function sameHost(a) { try { return new URL(a.href).hostname === FORM_HOST; } catch (x) { return false; } }
   function price(p) {
@@ -400,18 +414,19 @@ body:not(:has(.gg-promo)) li:has(>a[href$="#hot"]),body:not(:has(.gg-promo)) a[h
     this.render();
     this.refresh();
   }
+  /* строка относится к этой странице услуги: по номеру услуги в YCLIENTS или по названию (и подразделу, если он задан).
+     Тем же отбором пользуется проверка свежего файла: проверяем ровно то, что страница покажет */
+  App.prototype.mine = function (r, st) {
+    var self = this, c, hit = false;
+    (r.vars || [r]).forEach(function (v) { for (c in v.p) if (v.p.hasOwnProperty(c) && self.ids[v.p[c][0]]) hit = true; });
+    return hit || ((!this.onlySub || norm(st) === this.onlySub) && this.only.indexOf(norm(r.t)) > -1);
+  };
   App.prototype.secOf = function (b) {
     var sec = b && b.sec && b.sec[this.sec]; if (!sec) return null;
     if (!this.only.length) return sec;
     var self = this, subs = [];
-    function byId(r) {
-      var c, hit = false;
-      (r.vars || [r]).forEach(function (v) { for (c in v.p) if (v.p.hasOwnProperty(c) && self.ids[v.p[c][0]]) hit = true; });
-      return hit;
-    }
     sec.subs.forEach(function (x) {
-      var subOk = !self.onlySub || norm(x.t) === self.onlySub;
-      var rows = x.rows.filter(function (r) { return byId(r) || (subOk && self.only.indexOf(norm(r.t)) > -1); });
+      var rows = x.rows.filter(function (r) { return self.mine(r, x.t); });
       if (rows.length) subs.push({t: x.t, rows: rows});
     });
     if (!subs.length) return null;
@@ -534,7 +549,7 @@ body:not(:has(.gg-promo)) li:has(>a[href$="#hot"]),body:not(:has(.gg-promo)) a[h
     var self = this;
     function use(d) {
       d = clean(d, self.base.form);
-      if (!d || !plausible(self.base, d, self.sec)) return;
+      if (!d || !plausible(self.base, d, self.sec, self.only.length ? function (r, st) { return self.mine(r, st); } : null)) return;
       if (d.built && self.data.built && d.built < self.data.built) return;
       if (d.hash === self.data.hash) {
         /* цены те же, обновилась только дата сверки */
