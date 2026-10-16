@@ -101,6 +101,11 @@
 .gg-pl:after{transform:translate(-50%,-50%) rotate(90deg);transition:transform .15s}
 .gg-line[aria-expanded=true] .gg-pl:after{transform:translate(-50%,-50%) rotate(0)}
 .gg-no .gg-n,.gg-no .gg-p{color:#b0a89c;font-weight:400}
+.gg-alt{display:block;text-align:right;font-weight:600;color:#8a7f73}
+.gg-alt small{display:block;font-size:11px;font-weight:400;color:#999;line-height:1.25;white-space:nowrap}
+.gg-alts{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
+.gg-alt-c{border:1px solid #e3cfc0;background:#fff;border-radius:40px;padding:8px 14px;font:inherit;font-size:13px;color:#3a2c2c;cursor:pointer}
+.gg-alt-c:hover{border-color:#980003}
 .gg-more{padding:0 0 16px}
 .gg-more p{font-size:13px;color:#767676;margin:0 0 12px;white-space:pre-line}
 .gg-book{display:block;text-align:center;border:1px solid #980003;color:#980003 !important;border-radius:40px;padding:11px;font-weight:600;font-size:14px}
@@ -193,6 +198,12 @@ body:not(:has(.gg-promo)) li:has(>a[href$="#hot"]),body:not(:has(.gg-promo)) a[h
   };
   /* короткие подписи: когда переключатель прилип к верху экрана, справа его перекрывает кнопка меню сайта */
   var SHORT = {top: 'Топ'};
+  /* у кого есть услуга, если у выбранной категории её нет («нет» путало: не видно, что у топ-мастера она есть, 17.10.2026) */
+  var WHO = {
+    nails: {base: 'у мастера', expert: 'у эксперта', top: 'у топ-мастера', instructor: 'у инструктора'},
+    hair: {base: 'у стилиста', top: 'у топ-стилиста'},
+    def: {base: 'у мастера', expert: 'у эксперта', top: 'у топ-мастера', instructor: 'у инструктора'}
+  };
   var NBSP = ' ';
 
   function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
@@ -498,14 +509,35 @@ body:not(:has(.gg-promo)) li:has(>a[href$="#hot"]),body:not(:has(.gg-promo)) a[h
     if (typeof l === 'string') return '<a class="gg-about" href="' + esc(l) + '">Подробнее об услуге</a>';
     return '<p class="gg-zones">' + l.map(function (x) { return '<a href="' + esc(x[1]) + '">' + esc(x[0]) + '</a>'; }).join(', ') + '</p>';
   };
+  /* категории, у которых строка есть (кроме выбранной), с самой низкой ценой: для строк, которых нет у выбранной категории */
+  App.prototype.alts = function (r) {
+    var b = this.cur(), cats = b ? this.secOf(b).cats : [], lab = LABELS[this.sec] || LABELS.def, who = WHO[this.sec] || WHO.def, self = this, out = [];
+    cats.forEach(function (k) {
+      if (k === self.cat) return;
+      var best = null;
+      (r.vars || [r]).forEach(function (v) { var p = v.p[k]; if (p && (best === null || (p[1] || p[2]) < (best[1] || best[2]))) best = p; });
+      if (best) out.push({c: k, l: lab[k] || LABELS.def[k], w: who[k] || WHO.def[k], p: best, many: !!r.vars && r.vars.length > 1});
+    });
+    return out;
+  };
+  App.prototype.altLine = function (a) {
+    return '<span class="gg-alt"><small>' + a.w + '</small>' + (a.many ? 'от ' + num(a.p[1] || a.p[2]) + NBSP + '₽' : price(a.p)) + '</span>';
+  };
+  App.prototype.altMore = function (alts) {
+    var lab = LABELS[this.sec] || LABELS.def, cur = lab[this.cat] || LABELS.def[this.cat] || '';
+    return '<p>У категории «' + esc(cur) + '» этой услуги нет. Её делают:</p><div class="gg-alts">' + alts.map(function (a) {
+      return '<button type="button" class="gg-alt-c" data-c="' + a.c + '">' + esc(a.l) + ', ' + (a.many ? 'от ' + num(a.p[1] || a.p[2]) + NBSP + '₽' : price(a.p)) + '</button>';
+    }).join('') + '</div>';
+  };
   App.prototype.row = function (r, key, sub) {
     var c = this.cat, open = this.only.length ? this.open[key] !== false : !!this.open[key], h, self = this;
     if (r.vars) {
-      var have = r.vars.filter(function (v) { return v.p[c]; });
+      var have = r.vars.filter(function (v) { return v.p[c]; }), va = have.length ? [] : this.alts(r);
       var mn = null; have.forEach(function (v) { if (mn === null || v.p[c][1] < mn) mn = v.p[c][1]; });
-      h = '<li class="gg-row' + (have.length ? '' : ' gg-no') + '"><button type="button" class="gg-line" data-k="' + key + '" aria-expanded="' + open + '"><span class="gg-n">' + esc(r.t) +
-        '<small>' + r.vars.length + ' ' + (r.vars.length < 5 ? 'варианта' : 'вариантов') + ' по длине волос</small></span><span class="gg-p">' + (have.length ? 'от ' + num(mn) + NBSP + '₽' : 'нет') + '</span><span class="gg-pl"></span></button>';
+      h = '<li class="gg-row' + (have.length ? '' : va.length ? ' gg-other' : ' gg-no') + '"><button type="button" class="gg-line" data-k="' + key + '" aria-expanded="' + open + '"><span class="gg-n">' + esc(r.t) +
+        '<small>' + r.vars.length + ' ' + (r.vars.length < 5 ? 'варианта' : 'вариантов') + ' по длине волос</small></span><span class="gg-p">' + (have.length ? 'от ' + num(mn) + NBSP + '₽' : va.length ? this.altLine(va[0]) : 'нет') + '</span><span class="gg-pl"></span></button>';
       h += '<div class="gg-more"' + (open ? '' : ' hidden') + '>' + (r.n ? '<p>' + esc(r.n) + '</p>' : '');
+      if (!have.length && va.length) return h + this.altMore(va) + this.about(r, sub) + '</div></li>';
       r.vars.forEach(function (v) {
         var p = v.p[c];
         h += '<div class="gg-var' + (self.hl && norm(v.l) === self.hl ? ' gg-cur' : '') + '"><span>' + esc(v.l.charAt(0).toUpperCase() + v.l.slice(1)) + (p && dur(p) ? '<small>' + dur(p) + '</small>' : '') + '</span><b>' + price(p) + '</b>' +
@@ -513,10 +545,10 @@ body:not(:has(.gg-promo)) li:has(>a[href$="#hot"]),body:not(:has(.gg-promo)) a[h
       });
       return h + this.about(r, sub) + '</div></li>';
     }
-    var p = r.p[c], d = /\d\s*мин/i.test(r.t) ? '' : dur(p);
-    h = '<li class="gg-row' + (p ? '' : ' gg-no') + '"><button type="button" class="gg-line" data-k="' + key + '" aria-expanded="' + open + '"><span class="gg-n">' + esc(r.t) + (d ? '<small>' + d + '</small>' : '') +
-      '</span><span class="gg-p">' + price(p) + '</span><span class="gg-pl"></span></button><div class="gg-more"' + (open ? '' : ' hidden') + '>' + (r.n ? '<p>' + esc(r.n) + '</p>' : '') +
-      (p ? '<a class="gg-book" data-t="' + esc(r.t) + '" href="' + this.bookUrl(p[0]) + '">Записаться на эту услугу</a>' : '<p>У мастеров этой категории такой услуги нет. Выберите другую категорию.</p>') + this.about(r, sub) + '</div></li>';
+    var p = r.p[c], d = /\d\s*мин/i.test(r.t) ? '' : dur(p), al = p ? [] : this.alts(r);
+    h = '<li class="gg-row' + (p ? '' : al.length ? ' gg-other' : ' gg-no') + '"><button type="button" class="gg-line" data-k="' + key + '" aria-expanded="' + open + '"><span class="gg-n">' + esc(r.t) + (d ? '<small>' + d + '</small>' : '') +
+      '</span><span class="gg-p">' + (p ? price(p) : al.length ? this.altLine(al[0]) : 'нет') + '</span><span class="gg-pl"></span></button><div class="gg-more"' + (open ? '' : ' hidden') + '>' + (r.n ? '<p>' + esc(r.n) + '</p>' : '') +
+      (p ? '<a class="gg-book" data-t="' + esc(r.t) + '" href="' + this.bookUrl(p[0]) + '">Записаться на эту услугу</a>' : al.length ? this.altMore(al) : '<p>У мастеров этой категории такой услуги нет. Выберите другую категорию.</p>') + this.about(r, sub) + '</div></li>';
     return h;
   };
   App.prototype.click = function (e) {
