@@ -1,0 +1,733 @@
+{
+ "hair": {
+  "Стрижка женская & экспресс-уход от Davines": "/hair/strizhka-s-uhodom-davines",
+  "#26439854": "/hair/strizhka-s-uhodom-davines",
+  "#26581664": "/hair/strizhka-s-uhodom-davines",
+  "Стрижка женская": "/hair/zhenskaya-strizhka",
+  "#26439853": "/hair/zhenskaya-strizhka",
+  "#27505368": "/hair/zhenskaya-strizhka",
+  "Стрижка чёлки": "/hair/strizhka-chelki",
+  "#17990336": "/hair/strizhka-chelki",
+  "#27505371": "/hair/strizhka-chelki",
+  "Мужская стрижка": "/hair/muzhskaya-strizhka",
+  "#17990412": "/hair/muzhskaya-strizhka",
+  "#27505323": "/hair/muzhskaya-strizhka",
+  "Удлиненная мужская стрижка": "/hair/muzhskaya-strizhka",
+  "#27983367": "/hair/muzhskaya-strizhka",
+  "#27983346": "/hair/muzhskaya-strizhka",
+  "Уход для волос Davines OI": "/hair/uhod-davines-oi",
+  "#18522158": "/hair/uhod-davines-oi",
+  "#26581666": "/hair/uhod-davines-oi",
+  "Уход для волос Davines \"Кератиновое чудо\"": "/hair/uhod-davines-keratinovoe-chudo",
+  "#18522203": "/hair/uhod-davines-keratinovoe-chudo",
+  "#26581665": "/hair/uhod-davines-keratinovoe-chudo",
+  "Консультация по окрашиванию": "/hair/konsultaciya-po-okrashivaniyu",
+  "#18389582": "/hair/konsultaciya-po-okrashivaniyu",
+  "Консультация по окрашиванию & тест-прядь": "/hair/konsultaciya-i-test-pryad",
+  "#18389578": "/hair/konsultaciya-i-test-pryad",
+  "Окрашивание корней": "/hair/okrashivanie-kornej",
+  "#17997390": "/hair/okrashivanie-kornej",
+  "#27505344": "/hair/okrashivanie-kornej",
+  "#17997394": "/hair/okrashivanie-kornej",
+  "#27505353": "/hair/okrashivanie-kornej",
+  "#17997400": "/hair/okrashivanie-kornej",
+  "#27505338": "/hair/okrashivanie-kornej",
+  "#17997413": "/hair/okrashivanie-kornej",
+  "#27505350": "/hair/okrashivanie-kornej",
+  "Окрашивание в один тон": "/hair/okrashivanie-v-odin-ton",
+  "#17997425": "/hair/okrashivanie-v-odin-ton",
+  "#27505329": "/hair/okrashivanie-v-odin-ton",
+  "#17997427": "/hair/okrashivanie-v-odin-ton",
+  "#27505335": "/hair/okrashivanie-v-odin-ton",
+  "#17997456": "/hair/okrashivanie-v-odin-ton",
+  "#27505326": "/hair/okrashivanie-v-odin-ton",
+  "#17997461": "/hair/okrashivanie-v-odin-ton",
+  "#27505332": "/hair/okrashivanie-v-odin-ton",
+  "Сложное окрашивание": "/hair/slozhnoe-okrashivanie",
+  "#17997505": "/hair/slozhnoe-okrashivanie",
+  "#27505359": "/hair/slozhnoe-okrashivanie",
+  "#17997519": "/hair/slozhnoe-okrashivanie",
+  "#27505365": "/hair/slozhnoe-okrashivanie",
+  "#17997599": "/hair/slozhnoe-okrashivanie",
+  "#27505356": "/hair/slozhnoe-okrashivanie",
+  "#17997604": "/hair/slozhnoe-okrashivanie",
+  "#27505362": "/hair/slozhnoe-okrashivanie",
+  "Airtouch": "/hair/airtouch",
+  "#19462711": "/hair/airtouch",
+  "#27505287": "/hair/airtouch",
+  "#19462715": "/hair/airtouch",
+  "#27505293": "/hair/airtouch",
+  "#19462720": "/hair/airtouch",
+  "#27505284": "/hair/airtouch",
+  "#19462721": "/hair/airtouch",
+  "#27505290": "/hair/airtouch",
+  "Контуринг": "/hair/kontouring",
+  "#17997650": "/hair/kontouring",
+  "#27505320": "/hair/kontouring",
+  "#17997653": "/hair/kontouring",
+  "#27505314": "/hair/kontouring",
+  "#17997656": "/hair/kontouring",
+  "#27505317": "/hair/kontouring",
+  "Выход из черного": "/hair/vyhod-iz-chernogo",
+  "#18713012": "/hair/vyhod-iz-chernogo",
+  "#27505305": "/hair/vyhod-iz-chernogo",
+  "#18713018": "/hair/vyhod-iz-chernogo",
+  "#27505311": "/hair/vyhod-iz-chernogo",
+  "#18713025": "/hair/vyhod-iz-chernogo",
+  "#27505302": "/hair/vyhod-iz-chernogo",
+  "#18713029": "/hair/vyhod-iz-chernogo",
+  "Тонирование": "/hair/tonirovanie",
+  "#27505251": "/hair/tonirovanie",
+  "#27505377": "/hair/tonirovanie",
+  "#27505257": "/hair/tonirovanie",
+  "#27505386": "/hair/tonirovanie",
+  "#27505248": "/hair/tonirovanie",
+  "#27505374": "/hair/tonirovanie",
+  "#27505254": "/hair/tonirovanie",
+  "#27505383": "/hair/tonirovanie",
+  "Биозавивка": "/hair/biozavivka",
+  "#27505296": "/hair/biozavivka",
+  "#27505299": "/hair/biozavivka",
+  "Укладка на брашинг": "/hair/ukladka-na-brashing",
+  "#17997729": "/hair/ukladka-na-brashing",
+  "#27505392": "/hair/ukladka-na-brashing",
+  "#17997735": "/hair/ukladka-na-brashing",
+  "#27505398": "/hair/ukladka-na-brashing",
+  "#17997737": "/hair/ukladka-na-brashing",
+  "#27505389": "/hair/ukladka-na-brashing",
+  "#17997742": "/hair/ukladka-na-brashing",
+  "#27505395": "/hair/ukladka-na-brashing",
+  "Укладка на стайлер": "/hair/ukladka-na-stajler",
+  "#17997746": "/hair/ukladka-na-stajler",
+  "#27505404": "/hair/ukladka-na-stajler",
+  "#17997758": "/hair/ukladka-na-stajler",
+  "#27505410": "/hair/ukladka-na-stajler",
+  "#17997766": "/hair/ukladka-na-stajler",
+  "#27505401": "/hair/ukladka-na-stajler",
+  "#17997770": "/hair/ukladka-na-stajler",
+  "#27505407": "/hair/ukladka-na-stajler",
+  "Экспресс уход от Davines": "/hair/ekspress-uhod-davines",
+  "#28949886": "/hair/ekspress-uhod-davines",
+  "Оформление бороды": "/hair/oformlenie-borody",
+  "#32173503": "/hair/oformlenie-borody"
+ },
+ "lashes": {
+  "Наращивание ресниц \"Классика\"": "/lash/narashchivanie-klassika",
+  "#9423467": "/lash/narashchivanie-klassika",
+  "#11706182": "/lash/narashchivanie-klassika",
+  "Наращивание ресниц \"1,5D\"": "/lash/narashchivanie-1-5d",
+  "#11620067": "/lash/narashchivanie-1-5d",
+  "#11706184": "/lash/narashchivanie-1-5d",
+  "Наращивание ресниц \"2D\"": "/lash/narashchivanie-2d",
+  "#9423464": "/lash/narashchivanie-2d",
+  "#11706187": "/lash/narashchivanie-2d",
+  "Наращивание ресниц \"2,5D\"": "/lash/narashchivanie-2-5d",
+  "#15147942": "/lash/narashchivanie-2-5d",
+  "#15147943": "/lash/narashchivanie-2-5d",
+  "Наращивание ресниц \"3D\"": "/lash/narashchivanie-3d",
+  "#9423465": "/lash/narashchivanie-3d",
+  "#11706192": "/lash/narashchivanie-3d",
+  "Наращивание ресниц \"3,5D\"": "/lash/narashchivanie-3-5d",
+  "#9423466": "/lash/narashchivanie-3-5d",
+  "Коррекция наращенных ресниц \"Классика\"": "/lash/korrekciya-klassika",
+  "#11620066": "/lash/korrekciya-klassika",
+  "#11706178": "/lash/korrekciya-klassika",
+  "Коррекция наращенных ресниц \"1,5D\"": "/lash/korrekciya-1-5d",
+  "#11620062": "/lash/korrekciya-1-5d",
+  "#11706185": "/lash/korrekciya-1-5d",
+  "Коррекция наращенных ресниц \"2D\"": "/lash/korrekciya-2d",
+  "#11620063": "/lash/korrekciya-2d",
+  "#11706188": "/lash/korrekciya-2d",
+  "Коррекция наращенных ресниц \"2,5D\"": "/lash/korrekciya-2-5d",
+  "#15148092": "/lash/korrekciya-2-5d",
+  "#15148098": "/lash/korrekciya-2-5d",
+  "Коррекция наращенных ресниц \"3D\"": "/lash/korrekciya-3d",
+  "#11620064": "/lash/korrekciya-3d",
+  "#11706194": "/lash/korrekciya-3d",
+  "Ламинирование ресниц": "/lash/laminirovanie-resnic",
+  "#9423463": "/lash/laminirovanie-resnic",
+  "#11706212": "/lash/laminirovanie-resnic",
+  "Ламинирование верхних и нижних ресниц": "/lash/laminirovanie-resnic",
+  "#13362695": "/lash/laminirovanie-resnic",
+  "Наращивание уголков": "/lash/narashchivanie-ugolkov",
+  "#15147936": "/lash/narashchivanie-ugolkov",
+  "#15147945": "/lash/narashchivanie-ugolkov",
+  "Эффект \"Лучики\"": "/lash/luchiki",
+  "#14055855": "/lash/luchiki",
+  "Снятие наращенных ресниц": "/lash/snyatie-resnic",
+  "#9423469": "/lash/snyatie-resnic",
+  "#12393472": "/lash/snyatie-resnic",
+  "Окрашивание ресниц": "/lash/okrashivanie-resnic",
+  "#12393457": "/lash/okrashivanie-resnic",
+  "Коррекция наращенных ресниц \"3,5D\"": "/lash/korrekciya-3-5d",
+  "#11620065": "/lash/korrekciya-3-5d"
+ },
+ "laser": {
+  "Женская лазерная эпиляция|Зона S": [
+   [
+    "Бакенбарды",
+    "/epi/bakenbardy"
+   ],
+   [
+    "Подмышки",
+    "/epi/podmyshki"
+   ],
+   [
+    "Белая линия живота",
+    "/epi/belaya-liniya-zhivota"
+   ],
+   [
+    "Ареолы",
+    "/epi/areoly"
+   ],
+   [
+    "Верхняя губа",
+    "/epi/verhnyaya-guba"
+   ],
+   [
+    "Межбровье",
+    "/epi/mezhbrove"
+   ],
+   [
+    "Щёки",
+    "/epi/shcheki"
+   ],
+   [
+    "Подбородок",
+    "/epi/podborodok"
+   ]
+  ],
+  "#23895087": [
+   [
+    "Бакенбарды",
+    "/epi/bakenbardy"
+   ],
+   [
+    "Подмышки",
+    "/epi/podmyshki"
+   ],
+   [
+    "Белая линия живота",
+    "/epi/belaya-liniya-zhivota"
+   ],
+   [
+    "Ареолы",
+    "/epi/areoly"
+   ],
+   [
+    "Верхняя губа",
+    "/epi/verhnyaya-guba"
+   ],
+   [
+    "Межбровье",
+    "/epi/mezhbrove"
+   ],
+   [
+    "Щёки",
+    "/epi/shcheki"
+   ],
+   [
+    "Подбородок",
+    "/epi/podborodok"
+   ]
+  ],
+  "Женская лазерная эпиляция|Зона M": [
+   [
+    "Классическое бикини",
+    "/epi/klassicheskoe-bikini"
+   ],
+   [
+    "Ягодицы",
+    "/epi/yagodicy"
+   ],
+   [
+    "Живот полностью",
+    "/epi/zhivot"
+   ],
+   [
+    "Поясница",
+    "/epi/poyasnica"
+   ],
+   [
+    "Шея",
+    "/epi/sheya"
+   ],
+   [
+    "Лицо полностью",
+    "/epi/lico"
+   ]
+  ],
+  "#23895213": [
+   [
+    "Классическое бикини",
+    "/epi/klassicheskoe-bikini"
+   ],
+   [
+    "Ягодицы",
+    "/epi/yagodicy"
+   ],
+   [
+    "Живот полностью",
+    "/epi/zhivot"
+   ],
+   [
+    "Поясница",
+    "/epi/poyasnica"
+   ],
+   [
+    "Шея",
+    "/epi/sheya"
+   ],
+   [
+    "Лицо полностью",
+    "/epi/lico"
+   ]
+  ],
+  "Женская лазерная эпиляция|Зона L": [
+   [
+    "Голени",
+    "/epi/goleni"
+   ],
+   [
+    "Глубокое бикини",
+    "/epi/glubokoe-bikini"
+   ],
+   [
+    "Тотальное бикини",
+    "/epi/totalnoe-bikini"
+   ],
+   [
+    "Руки полностью",
+    "/epi/ruki"
+   ],
+   [
+    "Спина",
+    "/epi/spina"
+   ]
+  ],
+  "#23895282": [
+   [
+    "Голени",
+    "/epi/goleni"
+   ],
+   [
+    "Глубокое бикини",
+    "/epi/glubokoe-bikini"
+   ],
+   [
+    "Тотальное бикини",
+    "/epi/totalnoe-bikini"
+   ],
+   [
+    "Руки полностью",
+    "/epi/ruki"
+   ],
+   [
+    "Спина",
+    "/epi/spina"
+   ]
+  ],
+  "Женская лазерная эпиляция|Зона XL": [
+   [
+    "Ноги полностью",
+    "/epi/nogi"
+   ]
+  ],
+  "#23895351": [
+   [
+    "Ноги полностью",
+    "/epi/nogi"
+   ]
+  ],
+  "Женская лазерная эпиляция|КОМБО Тотальное бикини + подмышечные впадины": "/epi/kombo-bikini-podmyshki",
+  "#23895396": "/epi/kombo-bikini-podmyshki",
+  "Женская лазерная эпиляция|КОМБО Тотальное бикини + подмышечные впадины + голени": "/epi/kombo-bikini-podmyshki-goleni",
+  "#23895438": "/epi/kombo-bikini-podmyshki-goleni",
+  "Женская лазерная эпиляция|КОМБО Тотальное бикини + ноги полностью + подмышечные впадины": "/epi/kombo-bikini-nogi-podmyshki",
+  "#23895654": "/epi/kombo-bikini-nogi-podmyshki",
+  "Женская лазерная эпиляция|Первичная консультация": "/epi/konsultaciya",
+  "#19139213": "/epi/konsultaciya",
+  "Женская лазерная эпиляция|Все тело": "/epi/vse-telo",
+  "#17259320": "/epi/vse-telo",
+  "Мужская лазерная эпиляция|Зона L": [
+   [
+    "Голени и колени",
+    "/epi/muzhskaya-goleni"
+   ],
+   [
+    "Бёдра и колени",
+    "/epi/muzhskaya-bedra"
+   ],
+   [
+    "Спина",
+    "/epi/muzhskaya-spina"
+   ],
+   [
+    "Руки полностью",
+    "/epi/muzhskaya-ruki"
+   ],
+   [
+    "Лицо полностью",
+    "/epi/muzhskaya-lico"
+   ]
+  ],
+  "#29148783": [
+   [
+    "Голени и колени",
+    "/epi/muzhskaya-goleni"
+   ],
+   [
+    "Бёдра и колени",
+    "/epi/muzhskaya-bedra"
+   ],
+   [
+    "Спина",
+    "/epi/muzhskaya-spina"
+   ],
+   [
+    "Руки полностью",
+    "/epi/muzhskaya-ruki"
+   ],
+   [
+    "Лицо полностью",
+    "/epi/muzhskaya-lico"
+   ]
+  ],
+  "Мужская лазерная эпиляция|Зона М": [
+   [
+    "Паховая зона",
+    "/epi/muzhskaya-pahovaya-zona"
+   ],
+   [
+    "Межъягодичная область",
+    "/epi/muzhskaya-mezhyagodichnaya-oblast"
+   ],
+   [
+    "Ягодицы",
+    "/epi/muzhskaya-yagodicy"
+   ],
+   [
+    "Живот полностью",
+    "/epi/muzhskaya-zhivot"
+   ],
+   [
+    "Грудь",
+    "/epi/muzhskaya-grud"
+   ],
+   [
+    "Руки до локтя",
+    "/epi/muzhskaya-ruki-do-loktya"
+   ],
+   [
+    "Контур бороды",
+    "/epi/muzhskaya-kontur-borody"
+   ]
+  ],
+  "#29148741": [
+   [
+    "Паховая зона",
+    "/epi/muzhskaya-pahovaya-zona"
+   ],
+   [
+    "Межъягодичная область",
+    "/epi/muzhskaya-mezhyagodichnaya-oblast"
+   ],
+   [
+    "Ягодицы",
+    "/epi/muzhskaya-yagodicy"
+   ],
+   [
+    "Живот полностью",
+    "/epi/muzhskaya-zhivot"
+   ],
+   [
+    "Грудь",
+    "/epi/muzhskaya-grud"
+   ],
+   [
+    "Руки до локтя",
+    "/epi/muzhskaya-ruki-do-loktya"
+   ],
+   [
+    "Контур бороды",
+    "/epi/muzhskaya-kontur-borody"
+   ]
+  ],
+  "Мужская лазерная эпиляция|Зона S": [
+   [
+    "Подмышки",
+    "/epi/muzhskaya-podmyshki"
+   ],
+   [
+    "Поясница",
+    "/epi/muzhskaya-poyasnica"
+   ],
+   [
+    "Белая линия живота",
+    "/epi/muzhskaya-belaya-liniya-zhivota"
+   ],
+   [
+    "Задняя поверхность шеи",
+    "/epi/muzhskaya-sheya"
+   ],
+   [
+    "Межбровье",
+    "/epi/muzhskaya-mezhbrove"
+   ],
+   [
+    "Подбородок",
+    "/epi/muzhskaya-podborodok"
+   ]
+  ],
+  "#29148708": [
+   [
+    "Подмышки",
+    "/epi/muzhskaya-podmyshki"
+   ],
+   [
+    "Поясница",
+    "/epi/muzhskaya-poyasnica"
+   ],
+   [
+    "Белая линия живота",
+    "/epi/muzhskaya-belaya-liniya-zhivota"
+   ],
+   [
+    "Задняя поверхность шеи",
+    "/epi/muzhskaya-sheya"
+   ],
+   [
+    "Межбровье",
+    "/epi/muzhskaya-mezhbrove"
+   ],
+   [
+    "Подбородок",
+    "/epi/muzhskaya-podborodok"
+   ]
+  ],
+  "Мужская лазерная эпиляция|Зона XL": [
+   [
+    "Ноги полностью",
+    "/epi/muzhskaya-nogi"
+   ]
+  ],
+  "#29148801": [
+   [
+    "Ноги полностью",
+    "/epi/muzhskaya-nogi"
+   ]
+  ]
+ },
+ "massage": {
+  "Массаж лица": "/massage/massazh-lica",
+  "#19203292": "/massage/massazh-lica",
+  "Массаж спины + шейно-воротниковая зона 45 мин": "/massage/massazh-spiny",
+  "#18563088": "/massage/massazh-spiny",
+  "Классический массаж 60 мин": "/massage/klassicheskij",
+  "#18511630": "/massage/klassicheskij",
+  "Классический массаж 90 мин": "/massage/klassicheskij",
+  "#18511633": "/massage/klassicheskij",
+  "Классический массаж + коррекционное обёртывание (90 мин)": "/massage/klassicheskij",
+  "#29134143": "/massage/klassicheskij",
+  "Лимфодренажный массаж 60 мин": "/massage/limfodrenazhnyj",
+  "#18563063": "/massage/limfodrenazhnyj",
+  "Антицеллюлитный массаж 1 зона (30 мин)": "/massage/anticellyulitnyj",
+  "#27745995": "/massage/anticellyulitnyj",
+  "Антицеллюлитный массаж 2 зоны (50 мин)": "/massage/anticellyulitnyj",
+  "#27746004": "/massage/anticellyulitnyj",
+  "Антицеллюлитный массаж 3 зоны (70 мин)": "/massage/anticellyulitnyj",
+  "#27746025": "/massage/anticellyulitnyj",
+  "Антицеллюлитный массаж все тело (90 мин)": "/massage/anticellyulitnyj",
+  "#27746037": "/massage/anticellyulitnyj",
+  "Антицеллюлитный массаж 2 зоны + коррекционное обёртывание (80 мин)": "/massage/anticellyulitnyj",
+  "#29137209": "/massage/anticellyulitnyj",
+  "Коррекционное обёртывание": "/massage/korrekcionnoe-obertyvanie",
+  "#29135253": "/massage/korrekcionnoe-obertyvanie"
+ },
+ "nails": {
+  "Парафинотерапия для рук": "/massage/parafinoterapiya-ruk",
+  "#11620202": "/massage/parafinoterapiya-ruk",
+  "Парафинотерапия для ног": "/massage/parafinoterapiya-nog",
+  "#11620201": "/massage/parafinoterapiya-nog",
+  "Массаж рук": "/massage/massazh-ruk-spa-svechoj",
+  "#11620200": "/massage/massazh-ruk-spa-svechoj",
+  "Массаж ног": "/massage/massazh-nog-spa-svechoj",
+  "#11620199": "/massage/massazh-nog-spa-svechoj",
+  "Маникюр & покрытие гель-лаком": "/nail/manikyur-s-gel-lakom",
+  "#17724675": "/nail/manikyur-s-gel-lakom",
+  "#11620106": "/nail/manikyur-s-gel-lakom",
+  "#17724679": "/nail/manikyur-s-gel-lakom",
+  "Снятие & маникюр & покрытие гель-лаком": "/nail/manikyur-s-gel-lakom",
+  "#17724696": "/nail/manikyur-s-gel-lakom",
+  "#17724708": "/nail/manikyur-s-gel-lakom",
+  "#17724704": "/nail/manikyur-s-gel-lakom",
+  "Маникюр": "/nail/manikyur-bez-pokrytiya",
+  "#9423421": "/nail/manikyur-bez-pokrytiya",
+  "#11620105": "/nail/manikyur-bez-pokrytiya",
+  "#11620073": "/nail/manikyur-bez-pokrytiya",
+  "Снятие гель-лака & маникюр": "/nail/manikyur-bez-pokrytiya",
+  "#16049760": "/nail/manikyur-bez-pokrytiya",
+  "#16050408": "/nail/manikyur-bez-pokrytiya",
+  "#16049864": "/nail/manikyur-bez-pokrytiya",
+  "Маникюр & покрытие гелем": "/nail/manikyur-s-pokrytiem-gelem",
+  "#23815125": "/nail/manikyur-s-pokrytiem-gelem",
+  "#23815140": "/nail/manikyur-s-pokrytiem-gelem",
+  "#23815149": "/nail/manikyur-s-pokrytiem-gelem",
+  "Снятие & маникюр & покрытие гелем": "/nail/manikyur-s-pokrytiem-gelem",
+  "#23815032": "/nail/manikyur-s-pokrytiem-gelem",
+  "#23815059": "/nail/manikyur-s-pokrytiem-gelem",
+  "#23815065": "/nail/manikyur-s-pokrytiem-gelem",
+  "Укрепление ногтевой пластины акригелем": "/nail/manikyur-s-pokrytiem-gelem",
+  "#9423435": "/nail/manikyur-s-pokrytiem-gelem",
+  "#11620094": "/nail/manikyur-s-pokrytiem-gelem",
+  "Японский маникюр": "/nail/yaponskij-manikyur",
+  "#9423439": "/nail/yaponskij-manikyur",
+  "#13269852": "/nail/yaponskij-manikyur",
+  "#11620099": "/nail/yaponskij-manikyur",
+  "Мужской маникюр": "/nail/muzhskoj-manikyur",
+  "#9423424": "/nail/muzhskoj-manikyur",
+  "#11620107": "/nail/muzhskoj-manikyur",
+  "#11620075": "/nail/muzhskoj-manikyur",
+  "Детский маникюр": "/nail/detskij-manikyur",
+  "#14354544": "/nail/detskij-manikyur",
+  "#17027458": "/nail/detskij-manikyur",
+  "#14354555": "/nail/detskij-manikyur",
+  "Наращивание ногтей": "/nail/narashchivanie-nogtej",
+  "#9423425": "/nail/narashchivanie-nogtej",
+  "#11620076": "/nail/narashchivanie-nogtej",
+  "Коррекция наращенных ногтей": "/nail/narashchivanie-nogtej",
+  "#9423420": "/nail/narashchivanie-nogtej",
+  "#17027472": "/nail/narashchivanie-nogtej",
+  "#11620072": "/nail/narashchivanie-nogtej",
+  "Снятие наращенных ногтей": "/nail/narashchivanie-nogtej",
+  "#9423434": "/nail/narashchivanie-nogtej",
+  "#11620090": "/nail/narashchivanie-nogtej",
+  "#13256321": "/nail/narashchivanie-nogtej",
+  "Педикюр & покрытие гель-лаком": "/nail/pedikyur-s-gel-lakom",
+  "#9423448": "/nail/pedikyur-s-gel-lakom",
+  "#17027312": "/nail/pedikyur-s-gel-lakom",
+  "#11620078": "/nail/pedikyur-s-gel-lakom",
+  "Снятие & педикюр & покрытие гель-лаком": "/nail/pedikyur-s-gel-lakom",
+  "#9423455": "/nail/pedikyur-s-gel-lakom",
+  "#17027304": "/nail/pedikyur-s-gel-lakom",
+  "#11620086": "/nail/pedikyur-s-gel-lakom",
+  "Педикюр": "/nail/pedikyur",
+  "#9423447": "/nail/pedikyur",
+  "#17027323": "/nail/pedikyur",
+  "#11620077": "/nail/pedikyur",
+  "Снятие гель-лака & педикюр": "/nail/pedikyur",
+  "#16049853": "/nail/pedikyur",
+  "#17027319": "/nail/pedikyur",
+  "#16049859": "/nail/pedikyur",
+  "Экспресс-педикюр": "/nail/ekspress-pedikyur",
+  "#9423461": "/nail/ekspress-pedikyur",
+  "#17027355": "/nail/ekspress-pedikyur",
+  "#11620096": "/nail/ekspress-pedikyur",
+  "Экспресс-педикюр & покрытие гель-лаком": "/nail/ekspress-pedikyur",
+  "#9423462": "/nail/ekspress-pedikyur",
+  "#17027350": "/nail/ekspress-pedikyur",
+  "#11620097": "/nail/ekspress-pedikyur",
+  "Снятие гель-лака & экспресс-педикюр": "/nail/ekspress-pedikyur",
+  "#16049851": "/nail/ekspress-pedikyur",
+  "#17027344": "/nail/ekspress-pedikyur",
+  "#16049862": "/nail/ekspress-pedikyur",
+  "Снятие гель-лака & экспресс-педикюр & покрытие гель-лаком": "/nail/ekspress-pedikyur",
+  "#11620056": "/nail/ekspress-pedikyur",
+  "#17027333": "/nail/ekspress-pedikyur",
+  "#11620087": "/nail/ekspress-pedikyur",
+  "Мужской педикюр": "/nail/muzhskoj-pedikyur",
+  "#9423449": "/nail/muzhskoj-pedikyur",
+  "#17027371": "/nail/muzhskoj-pedikyur",
+  "#11620079": "/nail/muzhskoj-pedikyur",
+  "Дизайн \"Френч\"": "/nail/dizajn-nogtej",
+  "#16168796": "/nail/dizajn-nogtej",
+  "Дизайн на все ногти": "/nail/dizajn-nogtej",
+  "#32185263": "/nail/dizajn-nogtej",
+  "Дизайн \"Стразы\"": "/nail/dizajn-nogtej",
+  "#32185718": "/nail/dizajn-nogtej",
+  "Дизайн 1 ногтя": "/nail/dizajn-nogtej",
+  "#32185103": "/nail/dizajn-nogtej",
+  "Услуга в 4 руки": "/nail/manikyur-i-pedikyur-v-4-ruki",
+  "#11620048": "/nail/manikyur-i-pedikyur-v-4-ruki",
+  "Покрытие лаком": "/nail/pokrytie-lakom",
+  "#13269834": "/nail/pokrytie-lakom",
+  "#11620082": "/nail/pokrytie-lakom",
+  "#13256349": "/nail/pokrytie-lakom",
+  "Лаковое укрепляющее покрытие": "/nail/pokrytie-lakom",
+  "#18078952": "/nail/pokrytie-lakom",
+  "Снятие лака": "/nail/pokrytie-lakom",
+  "#11620057": "/nail/pokrytie-lakom",
+  "Ремонт без наращивания": "/nail/remont-nogtya",
+  "#9423429": "/nail/remont-nogtya",
+  "#11620083": "/nail/remont-nogtya",
+  "Ремонт с донаращиванием": "/nail/remont-nogtya",
+  "#13362787": "/nail/remont-nogtya",
+  "#13362806": "/nail/remont-nogtya",
+  "Ремонт с наращиванием": "/nail/remont-nogtya",
+  "#9423430": "/nail/remont-nogtya",
+  "#11620084": "/nail/remont-nogtya",
+  "Снятие гель-лака без последующей услуги": "/nail/snyatie-gel-laka",
+  "#13224651": "/nail/snyatie-gel-laka",
+  "#11620113": "/nail/snyatie-gel-laka",
+  "#11620088": "/nail/snyatie-gel-laka",
+  "#13256319": "/nail/snyatie-gel-laka",
+  "Удаление мозоли": "/nail/udalenie-mozolej-i-natoptyshej",
+  "#9423458": "/nail/udalenie-mozolej-i-natoptyshej",
+  "#11620092": "/nail/udalenie-mozolej-i-natoptyshej",
+  "Удаление натоптыша": "/nail/udalenie-mozolej-i-natoptyshej",
+  "#9423459": "/nail/udalenie-mozolej-i-natoptyshej",
+  "#13256592": "/nail/udalenie-mozolej-i-natoptyshej",
+  "Удаление трещины": "/nail/udalenie-mozolej-i-natoptyshej",
+  "#9423460": "/nail/udalenie-mozolej-i-natoptyshej",
+  "#11620093": "/nail/udalenie-mozolej-i-natoptyshej"
+ },
+ "brows": {
+  "Коррекция бровей": "/brows/korrekciya-brovej",
+  "#9423402": "/brows/korrekciya-brovej",
+  "#12393447": "/brows/korrekciya-brovej",
+  "Коррекция & прореживание бровей": "/brows/korrekciya-brovej",
+  "#17981577": "/brows/korrekciya-brovej",
+  "#17981585": "/brows/korrekciya-brovej",
+  "Мужская коррекция бровей": "/brows/muzhskaya-korrekciya-brovej",
+  "#11620039": "/brows/muzhskaya-korrekciya-brovej",
+  "#12393449": "/brows/muzhskaya-korrekciya-brovej",
+  "Окрашивание бровей": "/brows/okrashivanie-brovej",
+  "#9423404": "/brows/okrashivanie-brovej",
+  "#12393451": "/brows/okrashivanie-brovej",
+  "Коррекция & Окрашивание": "/brows/okrashivanie-brovej",
+  "#9423399": "/brows/okrashivanie-brovej",
+  "#12393438": "/brows/okrashivanie-brovej",
+  "Осветление бровей": "/brows/okrashivanie-brovej",
+  "#11620041": "/brows/okrashivanie-brovej",
+  "Ламинирование бровей": "/brows/laminirovanie-brovej",
+  "#9423403": "/brows/laminirovanie-brovej",
+  "#12393455": "/brows/laminirovanie-brovej",
+  "Ламинирование & Коррекция": "/brows/laminirovanie-brovej",
+  "#26769333": "/brows/laminirovanie-brovej",
+  "#26769345": "/brows/laminirovanie-brovej",
+  "Ламинирование & Коррекция & Окрашивание": "/brows/laminirovanie-brovej",
+  "#9423406": "/brows/laminirovanie-brovej",
+  "#12393421": "/brows/laminirovanie-brovej",
+  "Ботокс": "/brows/botoks-dlya-brovej",
+  "#12393456": "/brows/botoks-dlya-brovej",
+  "Коррекция & Окрашивание & Ботокс": "/brows/botoks-dlya-brovej",
+  "#9423400": "/brows/botoks-dlya-brovej",
+  "#12393444": "/brows/botoks-dlya-brovej",
+  "Ваксинг одной зоны лица": "/brows/vaksing-lica",
+  "#9423396": "/brows/vaksing-lica"
+ },
+ "makeup": {
+  "Дневной макияж": "/make/dnevnoj-makiyazh",
+  "#15553056": "/make/dnevnoj-makiyazh",
+  "Вечерний макияж": "/make/vechernij-makiyazh",
+  "#15553054": "/make/vechernij-makiyazh",
+  "Укладка": "/make/ukladka-volos",
+  "#15553059": "/make/ukladka-volos",
+  "Дневной образ: макияж + укладка": "/make/makiyazh-i-ukladka",
+  "#15553057": "/make/makiyazh-i-ukladka",
+  "Вечерний образ: макияж + укладка": "/make/makiyazh-i-ukladka",
+  "#15553055": "/make/makiyazh-i-ukladka",
+  "Свадебный образ": "/make/svadebnyj-obraz",
+  "#15553058": "/make/svadebnyj-obraz"
+ }
+}
