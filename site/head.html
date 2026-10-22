@@ -190,6 +190,8 @@ body:not(:has(.gg-promo)) li:has(>a[href$="#hot"]),body:not(:has(.gg-promo)) a[h
   var DATA_URL = CFG.dataUrl || 'https://konstkir2-gift.github.io/ggnail-data/site.json';
   var DATA_URL2 = CFG.dataUrl2 === undefined ? 'https://cdn.jsdelivr.net/gh/konstkir2-gift/ggnail-data@main/site.json' : CFG.dataUrl2;
   var COUNTER = CFG.counter || 87156332;
+  /* пиксель VK Рекламы: тот же номер стоит в настройках Тильды в поле «Mail.ru counter ID (VK Pixel)», код пикселя ставит сама Тильда */
+  var VK_PIXEL = CFG.vkPixel || 3807780;   // пиксель «Салон красоты G&G в Кудрово» в кабинете VK Рекламы (создан 22.10.2026)
   var FORM_HOST = CFG.formHost || 'n595090.yclients.ru';
   var LABELS = {
     nails: {base: 'Мастер', expert: 'Эксперт', top: 'Топ-мастер', instructor: 'Инструктор'},
@@ -306,7 +308,11 @@ body:not(:has(.gg-promo)) li:has(>a[href$="#hot"]),body:not(:has(.gg-promo)) a[h
       var k = hi[bid + '|' + norm(st)] !== undefined ? bid + '|' + norm(st) : bid;
       if (hi[k] === undefined || p[2] <= 0 || p[2] > hi[k] * 2.5 || (p[1] > 0 ? p[1] : p[2]) < lo[k] * 0.4) bad = true;
     });
-    return !bad && n0 > 0 && known >= n0 * 0.7 && fresh <= Math.max(4, n0 * 0.2);
+    /* страница одной услуги: если у услуги закрыли целую категорию мастеров (19.10.2026 у стилистов закрыли выход из чёрного),
+       узнанных остаётся меньше 70%, и страница держала старые цены. Это не подмена: новых ячеек нет, оставшиеся сошлись по цене.
+       Такой файл принимаем: страница может только потерять строки, но не получить чужие цены. Разделы проверяем по-прежнему. */
+    var shrunk = !!scope && fresh === 0 && known > 0;
+    return !bad && n0 > 0 && (known >= n0 * 0.7 || shrunk) && fresh <= Math.max(4, n0 * 0.2);
   }
   function sameHost(a) { try { return new URL(a.href).hostname === FORM_HOST; } catch (x) { return false; } }
   function price(p) {
@@ -330,6 +336,13 @@ body:not(:has(.gg-promo)) li:has(>a[href$="#hot"]),body:not(:has(.gg-promo)) a[h
       if (c && typeof c.reachGoal === 'function') c.reachGoal(name, params);
       else if (typeof window.ym === 'function') window.ym(COUNTER, 'reachGoal', name, params);
     } catch (x) {}
+    vkGoal(name);
+  }
+  /* та же цель в пиксель VK, через его очередь _tmr: пока код пикселя не загрузился (Тильда ставит его с задержкой 2 с),
+     цель ждёт в очереди, а если пиксель не загрузится вовсе, никуда не уйдёт */
+  function vkGoal(name) {
+    if (!VK_PIXEL) return;
+    try { (window._tmr || (window._tmr = [])).push({type: 'reachGoal', id: VK_PIXEL, goal: name}); } catch (x) {}
   }
   /* сравнение названий услуг без учёта регистра, кавычек, ё и латинской/русской «м» (в YCLIENTS встречаются оба варианта «Зона M») */
   function norm(s) { return String(s || '').toLowerCase().replace(/ё/g, 'е').replace(/[«»"“”„']/g, '').replace(/\u043c/g, 'm').replace(/\s+/g, ' ').trim(); }
